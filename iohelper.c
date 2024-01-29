@@ -195,8 +195,18 @@ void initInputPin(pin_t pin, resistorType_t resType) {
     *(port.SEL1) &= ~mask;
     // DIR = 1 for output, 0 for input
     *(port.DIR) &= ~mask;
-    // Disable resistors for now
-    *(port.REN) &= ~mask;
+
+    // Configure internal resistor
+    if (resType == Pullup) {
+        *(port.REN) |= mask;
+        *(port.OUT) |= mask;
+    } else if (resType == Pulldown) {
+        *(port.REN) |= mask;
+        *(port.OUT) &= ~mask;
+    } else if (resType == NoResistor) {
+        *(port.REN) &= ~mask;
+        *(port.OUT) &= ~mask; // Set output to low to save on power
+    }
 }
 
 void setOutput(pin_t pin) {

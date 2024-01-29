@@ -25,7 +25,7 @@ extern "C"
 #endif
 
 #include "msp.h"
-#include "typedefs.h"
+#include "iohelper.h"
 
 typedef struct _stepper {
     uint8_t index;

@@ -8,7 +8,7 @@
 #ifndef KEYPAD_H_
 #define KEYPAD_H_
 
-#include "typedefs.h"
+#include "iohelper.h"
 
 typedef enum _buttonState {
     Pressed,

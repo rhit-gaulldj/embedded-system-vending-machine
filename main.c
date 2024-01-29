@@ -1,7 +1,6 @@
 #include <stddef.h>
 #include "msp.h"
 
-#include "typedefs.h"
 #include "keypad.h"
 #include "stepperDriver.h"
 #include "lcd.h"

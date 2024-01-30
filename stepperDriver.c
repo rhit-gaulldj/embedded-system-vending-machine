@@ -15,3 +15,13 @@ void initStepperMotorTimer(Timer_A_Type *timer, uint16_t interruptBit) {
 
     __enable_irq();
 }
+
+stepperMotor_t constructStepperMotor(uint8_t index, pin_t in1, pin_t in2, pin_t in3, pin_t in4) {
+    stepperMotor_t m;
+    m.index = index;
+    m.in1 = in1;
+    m.in2 = in2;
+    m.in3 = in3;
+    m.in4 = in4;
+    return m;
+}

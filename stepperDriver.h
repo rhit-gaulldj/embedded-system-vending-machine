@@ -4,7 +4,6 @@
  *
  * Description: Stepper motor ULN2003 driver for MSP432P4111 Launchpad.
  *              Assumes SMCLK configured with 48MHz HFXT as source.
- *              Uses Timer_A3 and P2.7, P2.6, P2.5, P2.4
  *
  *  Created on: 1/22/2024
  *      Author: Daniel Gaull
@@ -36,6 +35,7 @@ typedef struct _stepper {
 
 } stepperMotor_t;
 
+stepperMotor_t constructStepperMotor(uint8_t index, pin_t in1, pin_t in2, pin_t in3, pin_t in4);
 // Initializes the GPIO pins for the stepper
 void initStepperMotor(stepperMotor_t motor);
 

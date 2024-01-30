@@ -4,10 +4,13 @@
 #include "keypad.h"
 #include "stepperDriver.h"
 #include "lcd.h"
+#include "button.h"
 
 #define NUM_STEPPERS        4
 
 stepperMotor_t steppers[NUM_STEPPERS];
+button_t submitButton;
+button_t cancelButton;
 itemcode_t itemCode;
 
 void init() {
@@ -15,8 +18,8 @@ void init() {
 
     // Initialize the keypad
     initKeypad(P6P6, P6P5, P6P4, P1P7,
-               P1P6, P1P5, P3P7, P3P6,
-               NULL, &P2P7);
+               P1P6, P1P5, P3P7, P3P6);//,
+               //NULL, &P2P7);
 
     steppers[0].index = 0;
     steppers[0].in1 = P2P3;
@@ -41,6 +44,15 @@ void init() {
     steppers[3].in2 = P5P6;
     steppers[3].in3 = P5P7;
     steppers[3].in4 = P6P7;
+
+    button_t submitButton = constructButton(P2P7, 1);
+    button_t cancelButton = constructButton(P2P7, 0);
+    if (submitButton.exists) {
+        initButton(submitButton);
+    }
+    if (cancelButton.exists) {
+        initButton(cancelButton);
+    }
 
     initStepperMotor(steppers[0]);
     initStepperMotor(steppers[1]);

@@ -10,11 +10,6 @@
 
 #include "iohelper.h"
 
-typedef enum _buttonState {
-    Pressed,
-    NotPressed
-} buttonState_t;
-
 // A, B, C, D, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, *, #
 typedef uint16_t keys_t;
 
@@ -37,15 +32,15 @@ typedef uint16_t keys_t;
 
 // Initializes the GPIO pins
 void initKeypad(pin_t pin0, pin_t pin1, pin_t pin2, pin_t pin3,
-                pin_t pin4, pin_t pin5, pin_t pin6, pin_t pin7,
-                pin_t *clearBtnPin, pin_t *submitBtnPin);
+                pin_t pin4, pin_t pin5, pin_t pin6, pin_t pin7);//,
+                //pin_t *clearBtnPin, pin_t *submitBtnPin);
 
 // Polls and returns the currently held-down keys
 // The bit for the key is high if the key is pressed, low if not
 keys_t getPressedKeys(void);
 
 // Returns the status of various buttons
-buttonState_t getSubmitButtonStatus(void);
-buttonState_t getClearButtonStatus(void);
+//buttonState_t getSubmitButtonStatus(void);
+//buttonState_t getClearButtonStatus(void);
 
 #endif /* KEYPAD_H_ */

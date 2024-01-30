@@ -13,12 +13,12 @@ struct keypad_pins {
     pin_t pin7;
 };
 struct keypad_pins pins;
-pin_t *submitPin;
-pin_t *clearPin;
+//pin_t *submitPin;
+//pin_t *clearPin;
 
 void initKeypad(pin_t pin0, pin_t pin1, pin_t pin2, pin_t pin3,
-                pin_t pin4, pin_t pin5, pin_t pin6, pin_t pin7,
-                pin_t *clearBtnPin, pin_t *submitBtnPin) {
+                pin_t pin4, pin_t pin5, pin_t pin6, pin_t pin7){//,
+                //pin_t *clearBtnPin, pin_t *submitBtnPin) {
     // Columns are output
     initOutputPin(pin0, Low);
     initOutputPin(pin1, Low);
@@ -30,15 +30,15 @@ void initKeypad(pin_t pin0, pin_t pin1, pin_t pin2, pin_t pin3,
     initInputPin(pin6, Pullup);
     initInputPin(pin7, Pullup);
     // Buttons may not be external, so they are pointers. Only initialize if the pointer isn't null
-    if (clearBtnPin != NULL) {
-        initInputPin(*clearBtnPin, Pullup);
-    }
-    if (submitBtnPin != NULL) {
-        initInputPin(*submitBtnPin, Pullup);
-    }
+//    if (clearBtnPin != NULL) {
+//        initInputPin(*clearBtnPin, Pullup);
+//    }
+//    if (submitBtnPin != NULL) {
+//        initInputPin(*submitBtnPin, Pullup);
+//    }
 
-    submitPin = submitBtnPin;
-    clearPin = clearBtnPin;
+//    submitPin = submitBtnPin;
+//    clearPin = clearBtnPin;
     pins.pin0 = pin0;
     pins.pin1 = pin1;
     pins.pin2 = pin2;

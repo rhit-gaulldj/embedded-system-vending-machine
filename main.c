@@ -39,7 +39,7 @@ void init() {
         initButton(cancelButton);
     }
 
-    initStepperMotorTimer(TIMER_A1, TA1_0_IRQn);
+    initStepperMotorTimer();
 
     itemCode.letter = NoLetter;
     itemCode.digit = NoNumber;

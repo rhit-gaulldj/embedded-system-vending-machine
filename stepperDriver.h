@@ -1,14 +1,3 @@
-/*! \file */
-/*!
- * stepperMotor.h
- *
- * Description: Stepper motor ULN2003 driver for MSP432P4111 Launchpad.
- *              Assumes SMCLK configured with 48MHz HFXT as source.
- *
- *  Created on: 1/22/2024
- *      Author: Daniel Gaull
- */
-
 #ifndef STEPPERMOTOR_H_
 #define STEPPERMOTOR_H_
 
@@ -26,6 +15,8 @@ extern "C"
 #include "msp.h"
 #include "iohelper.h"
 
+// Uses Timer A1
+
 typedef struct _stepper {
     uint8_t index;
     pin_t in1;
@@ -42,7 +33,7 @@ void initStepperMotor(stepperMotor_t motor);
 // Initializes the specified timer for the stepper
 // Configures the control and prescaler values, and enables interrupts
 // It is up to the caller to set up their interrupt handler
-void initStepperMotorTimer(Timer_A_Type *timer, uint16_t interruptBit);
+void initStepperMotorTimer(void);
 
 //*****************************************************************************
 //

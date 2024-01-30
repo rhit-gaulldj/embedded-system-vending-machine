@@ -1,6 +1,10 @@
 #include "iohelper.h"
 #include "stepperDriver.h"
 
+// Uses timer A1
+#define STEPPER_TIMER           TIMER_A1
+#define TIMER_INTERRUPT_BIT     TA1_0_IRQn
+
 void initStepperMotor(stepperMotor_t motor) {
     initOutputPin(motor.in1, Low);
     initOutputPin(motor.in2, Low);
@@ -8,10 +12,10 @@ void initStepperMotor(stepperMotor_t motor) {
     initOutputPin(motor.in4, Low);
 }
 
-void initStepperMotorTimer(Timer_A_Type *timer, uint16_t interruptBit) {
+void initStepperMotorTimer(void) {
     // TODO timer control & prescaler
 
-    NVIC->ISER[0] |= 1 << interruptBit;
+    NVIC->ISER[0] |= 1 << TIMER_INTERRUPT_BIT;
 
     __enable_irq();
 }

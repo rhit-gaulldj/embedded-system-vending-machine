@@ -1,18 +1,3 @@
-/*!
- * lcd.c
- *
- *      Description: Helper file for LCD library. For Hitachi HD44780 parallel LCD
- *               in 8-bit mode. Assumes the following connections:
- *               P2.7 <-----> RS
- *               P2.6 <-----> E
- *                            R/W --->GND
- *                P4  <-----> DB
- *
- *          This module uses SysTick timer for delays.
- *
- *      Author: ece230
- */
-
 #include <msp.h>
 
 #include "lcd.h"
@@ -41,15 +26,6 @@ void configLCD(uint32_t clkFreq) {
     initDelayTimer(clkFreq);
 }
 
-/*!
- * Delay method based on instruction execution time.
- *   Execution times from Table 6 of HD44780 data sheet, with buffer.
- *
- * \param mode RS mode selection
- * \param instruction Instruction/data to write to LCD
- *
- * \return None
- */
 void instructionDelay(uint8_t mode, uint8_t instruction) {
     // if instruction is Return Home or Clear Display, use long delay for
     //  instruction execution; otherwise, use short delay
@@ -61,14 +37,6 @@ void instructionDelay(uint8_t mode, uint8_t instruction) {
     }
 }
 
-/*!
- * Function to write instruction/data to LCD.
- *
- * \param mode          Write mode: 0 - control, 1 - data
- * \param instruction   Instruction/data to write to LCD
- *
- * \return None
- */
 void writeInstruction(uint8_t mode, uint8_t instruction) {
     // set 8-bit data on LCD DB port
     LCD_DB_PORT->OUT = instruction;
@@ -93,25 +61,9 @@ void writeInstruction(uint8_t mode, uint8_t instruction) {
     instructionDelay(mode, instruction);
 }
 
-/*!
- * Function to write command instruction to LCD.
- *
- * \param command Command instruction to write to LCD
- *
- * \return None
- */
 void commandInstruction(uint8_t command) {
     writeInstruction(CTRL_MODE, command);
 }
-
-/*!
- * Function to write data instruction to LCD. Writes ASCII value to current
- *  cursor location.
- *
- * \param data ASCII value/data to write to LCD
- *
- * \return None
- */
 void dataInstruction(uint8_t data) {
     writeInstruction(DATA_MODE, data);
 }
@@ -140,11 +92,9 @@ void initLCD(void) {
 }
 
 void printChar(char character) {
-    // print ASCII \b character to current cursor position
     dataInstruction(character);
 }
 
 void clearDisplay() {
-    // clear the LCD display and return cursor to home position
     commandInstruction(CLEAR_DISPLAY_MASK);
 }

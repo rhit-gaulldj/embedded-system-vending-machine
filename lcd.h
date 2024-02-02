@@ -1,18 +1,3 @@
-/*!
- * lcd.h
- *
- *      Description: Helper file for LCD library. For Hitachi HD44780 parallel LCD
- *               in 8-bit mode. Assumes the following connections:
- *               P2.7 <-----> RS
- *               P2.6 <-----> E
- *                            R/W --->GND
- *                P4  <-----> DB
- *
- *          This module uses SysTick timer for delays.
- *
- *      Author: ece230
- */
-
 #ifndef LCD_H_
 #define LCD_H_
 
@@ -28,7 +13,10 @@ extern "C"
 #endif
 
 #include <msp.h>
+#include "typedefs.h"
+#include "iohelper.h"
 
+// TODO: Remove
 #define LCD_DB_PORT         P4
 #define LCD_RS_PORT         P2
 #define LCD_EN_PORT         P2
@@ -78,43 +66,10 @@ extern "C"
 #define B_FLAG_MASK         0x01
 #define S_FLAG_MASK         0x01
 
-/*!
- *
- *  \brief This function configures the selected pins for an LCD
- *
- *  This function configures the selected pins as output pins to interface
- *      with a Hitachi HD44780 LCD in 8-bit mode. Also initializes sysTickDelay
- *      library based on system clock frequency.
- *
- *  \param clkFreq is the frequency of the system clock (MCLK) in Hz
- *
- *  Modified bits of \b P2DIR register and \b P4DIR register, and bits of
- *      \b P2SEL and \b P4SEL registers.
- *
- *  \return None
- */
 extern void configLCD(uint32_t clkFreq);
-
-/*!
- *  \brief This function initializes LCD
- *
- *  This function generates initialization sequence for LCD for 8-bit mode.
- *      Delays set by worst-case 2.7 V
- *
- *  \return None
- */
 extern void initLCD(void);
-
-/*!
- *  \brief This function prints character to current cursor position
- *
- *  This function prints ASCII character to current cursor position on LCD.
- *
- *  \param character is the character to display on LCD
- *
- *  \return None
- */
 extern void printChar(char character);
+extern void printString(char *str);
 
 //*****************************************************************************
 //

@@ -8,6 +8,15 @@
 
 #define NUM_STEPPERS        4
 
+typedef enum _mode {
+    EnteringCode,
+    ShowingPrice,
+    EnteringCoins,
+    DispensingItem,
+    Canceled;
+
+} mode_t;
+
 stepperMotor_t steppers[NUM_STEPPERS];
 button_t submitButton;
 button_t clearButton;

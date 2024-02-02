@@ -98,16 +98,18 @@ void loop(void) {
 void updateLcd(void) {
     // TODO
     // State 1:
-    // Code: __
+    // Enter Code: __
     // (blank line 2)
 
     // State 2:
-    // Code: __
     // Cost: $_.__
+    // Press Submit
 
     // State 3:
-    // Remaining:
-    // Cost: $_.__
+    // Item: __
+    // Insert: $_.__
+
+    // (able to cancel at any time until item dispensed)
 }
 
 void resetInput(void) {

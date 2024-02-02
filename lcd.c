@@ -8,20 +8,27 @@
 #define LONG_INSTR_DELAY    2000
 #define SHORT_INSTR_DELAY   50
 
-void configLCD(uint32_t clkFreq) {
-    // configure pins as GPIO
-    LCD_DB_PORT->SEL0 = 0;
-    LCD_DB_PORT->SEL1 = 0;
-    LCD_RS_PORT->SEL0 &= ~LCD_RS_MASK;
-    LCD_RS_PORT->SEL1 &= ~LCD_RS_MASK;
-    LCD_EN_PORT->SEL0 &= ~LCD_EN_MASK;
-    LCD_EN_PORT->SEL1 &= ~LCD_EN_MASK;
-    // initialize En output to Low
-    LCD_EN_PORT->OUT &= ~LCD_EN_MASK;
-    // set pins as outputs
-    LCD_DB_PORT->DIR = 0xFF;
-    LCD_RS_PORT->DIR |= LCD_RS_MASK;
-    LCD_EN_PORT->DIR |= LCD_EN_MASK;
+pin_t rs, e, db7, db6, db5, db4;
+pin_t outputPins[4];
+
+void configLCD(uint32_t clkFreq, pin_t rs_p, pin_t e_p, pin_t db7_p, pin_t db6_p, pin_t db5_p, pin_t db4_p) {
+    rs = rs_p;
+    e = e_p;
+    db7 = db7_p;
+    db6 = db6_p;
+    db5 = db5_p;
+    db4 = db4_p;
+    outputPins[0] = db4;
+    outputPins[1] = db5;
+    outputPins[2] = db6;
+    outputPins[3] = db7;
+
+    initOutputPin(rs, Low);
+    initOutputPin(e, Low);
+    initOutputPin(db7, Low);
+    initOutputPin(db6, Low);
+    initOutputPin(db5, Low);
+    initOutputPin(db4, Low);
 
     initDelayTimer(clkFreq);
 }
@@ -38,27 +45,40 @@ void instructionDelay(uint8_t mode, uint8_t instruction) {
 }
 
 void writeInstruction(uint8_t mode, uint8_t instruction) {
-    // set 8-bit data on LCD DB port
-    LCD_DB_PORT->OUT = instruction;
-
     // set RS for data or control instruction mode
-    //      use bit-masking to avoid affecting other pins of port
     if (mode == DATA_MODE) {
-        LCD_RS_PORT->OUT |= LCD_RS_MASK;
+        setOutput(rs);
     } else {
-        LCD_RS_PORT->OUT &= ~LCD_RS_MASK;
+        clearOutput(rs);
     }
-    // pulse E to execute instruction on LCD
-    // set Enable signal high
-    //      use bit-masking to avoid affecting other pins of port
-    LCD_EN_PORT->OUT |= LCD_EN_MASK;
-    delayMicroSec(100);
-    // set Enable signal low
-    //      use bit-masking to avoid affecting other pins of port
-    LCD_EN_PORT->OUT &= ~LCD_EN_MASK;
+
+    // Send data to the output pins
+    int i;
+    for (i = 0; i < 4; i++) {
+        if (instruction & (1 << (i+4))) {
+            setOutput(outputPins[i]);
+        } else {
+            clearOutput(outputPins[i]);
+        }
+    }
+    flashData();
+    // Set the lower 4 bits
+    for (i = 0; i < 4; i++) {
+        if (instruction & (1 << i)) {
+            setOutput(outputPins[i]);
+        } else {
+            clearOutput(outputPins[i]);
+        }
+    }
+    flashData();
 
     // delay to allow instruction execution to complete
     instructionDelay(mode, instruction);
+}
+void flashData() {
+    setOutput(e);
+    delayMicroSec(100);
+    clearOutput(e);
 }
 
 void commandInstruction(uint8_t command) {
@@ -93,6 +113,13 @@ void initLCD(void) {
 
 void printChar(char character) {
     dataInstruction(character);
+}
+
+void printString(char *str) {
+    int i;
+    for (i = 0; str[i] != '\0'; i++) {
+        printChar(str[i]);
+    }
 }
 
 void clearDisplay() {

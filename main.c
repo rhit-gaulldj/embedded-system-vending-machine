@@ -10,8 +10,15 @@
 
 stepperMotor_t steppers[NUM_STEPPERS];
 button_t submitButton;
-button_t cancelButton;
+button_t clearButton;
+button_t coinButton;
 itemcode_t itemCode;
+
+// Functions defined further below
+void loop(void);
+void submitButtonHandler(void);
+void clearButtonHandler(void);
+void coinButtonHandler(void);
 
 void init() {
     initConstants();
@@ -29,13 +36,20 @@ void init() {
     initStepperMotor(steppers[2]);
     initStepperMotor(steppers[3]);
 
-    button_t submitButton = constructButton(P2P7, 1);
-    button_t cancelButton = constructButton(P2P7, 0);
+    submitButton = constructButton(P2P7, 1);
+    clearButton = constructButton(P4P0, 1);
+    coinButton = constructButton(P4P1, 1);
     if (submitButton.exists) {
         initButton(submitButton);
+        registerButtonPressEvent(&submitButton, submitButtonHandler);
     }
-    if (cancelButton.exists) {
-        initButton(cancelButton);
+    if (clearButton.exists) {
+        initButton(clearButton);
+        registerButtonPressEvent(&clearButton, clearButtonHandler);
+    }
+    if (coinButton.exists) {
+        initButton(coinButton);
+        registerButtonPressEvent(&coinButton, coinButtonHandler);
     }
 
     initStepperMotorTimer();
@@ -44,12 +58,6 @@ void init() {
     itemCode.digit = NoNumber;
 }
 
-// Functions defined further below
-void loop(void);
-
-/**
- * main.c
- */
 void main(void)
 {
 	WDT_A->CTL = WDT_A_CTL_PW | WDT_A_CTL_HOLD;		// stop watchdog timer
@@ -62,7 +70,17 @@ void main(void)
 }
 
 void loop(void) {
-    // TEST: Prints out the currently-held buttons
+    if (submitButton.exists) {
+        updateButton(submitButton);
+    }
+    if (clearButton.exists) {
+        updateButton(clearButton);
+    }
+    if (coinButton.exists) {
+        updateButton(coinButton);
+    }
+
+    // TEST: Prints out the currently-held buttons on the keypad
     static keys_t pressedKeys;
     static keys_t lastKeyState;
     pressedKeys = getPressedKeys();
@@ -70,4 +88,14 @@ void loop(void) {
         printf("0x%04x\n", pressedKeys);
         lastKeyState = pressedKeys;
     }
+}
+
+void submitButtonHandler(void) {
+
+}
+void clearButtonHandler(void) {
+
+}
+void coinButtonHandler(void) {
+
 }

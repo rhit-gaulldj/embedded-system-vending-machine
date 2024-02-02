@@ -29,6 +29,7 @@ void init() {
     initKeypad(P6P6, P6P5, P6P4, P1P7,
                P1P6, P1P5, P3P7, P3P6);
 
+    // Initialize the stepper motor stuff
     steppers[0] = constructStepperMotor(0, P2P3, P2P4, P2P5, P2P6);
     steppers[1] = constructStepperMotor(1, P3P5, P3P3, P3P2, P3P0);
     steppers[2] = constructStepperMotor(2, P5P0, P5P1, P5P2, P5P4);
@@ -38,6 +39,9 @@ void init() {
     initStepperMotor(steppers[2]);
     initStepperMotor(steppers[3]);
 
+    initStepperMotorTimer();
+
+    // Initialize the various outside push buttons
     submitButton = constructButton(P2P7, 1);
     clearButton = constructButton(P4P0, 1);
     coinButton = constructButton(P4P1, 1);
@@ -54,8 +58,7 @@ void init() {
         registerButtonPressEvent(&coinButton, coinButtonHandler);
     }
 
-    initStepperMotorTimer();
-
+    // Set up internal representation
     itemCode.letter = NoLetter;
     itemCode.digit = NoNumber;
 }
@@ -109,7 +112,7 @@ void updateLcd(void) {
 
 void resetInput(void) {
     itemCode.letter = NoLetter;
-    itemCode.number = NoNumber;
+    itemCode.digit = NoNumber;
     // TODO: LCD clear
 }
 

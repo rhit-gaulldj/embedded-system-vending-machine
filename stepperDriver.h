@@ -14,6 +14,7 @@ extern "C"
 
 #include "msp.h"
 #include "iohelper.h"
+#include "typedefs.h"
 
 // Uses Timer A1
 
@@ -35,11 +36,8 @@ void initStepperMotor(stepperMotor_t motor);
 // It is up to the caller to set up their interrupt handler
 void initStepperMotorTimer(void);
 
-//*****************************************************************************
-//
-// Mark the end of the C bindings section for C++ compilers.
-//
-//*****************************************************************************
+void rotate(stepperMotor_t motor, uint8_t revolutions);
+
 #ifdef __cplusplus
 }
 #endif

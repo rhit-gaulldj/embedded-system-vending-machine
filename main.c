@@ -100,8 +100,8 @@ void updateLcd(void) {
 
     // State 2:
     // Code: __
-    // Cost: $_
-    .__
+    // Cost: $_.__
+
     // State 3:
     // Remaining:
     // Cost: $_.__

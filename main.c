@@ -12,7 +12,9 @@ stepperMotor_t steppers[NUM_STEPPERS];
 button_t submitButton;
 button_t clearButton;
 button_t coinButton;
+
 itemcode_t itemCode;
+uint8_t coinsInserted;
 
 // Functions defined further below
 void loop(void);
@@ -90,12 +92,33 @@ void loop(void) {
     }
 }
 
-void submitButtonHandler(void) {
+void updateLcd(void) {
+    // TODO
+    // State 1:
+    // Code: __
+    // (blank line 2)
 
+    // State 2:
+    // Code: __
+    // Cost: $_
+    .__
+    // State 3:
+    // Remaining:
+    // Cost: $_.__
+}
+
+void resetInput(void) {
+    itemCode.letter = NoLetter;
+    itemCode.number = NoNumber;
+    // TODO: LCD clear
+}
+
+void submitButtonHandler(void) {
+    resetInput();
 }
 void clearButtonHandler(void) {
-
+    resetInput();
 }
 void coinButtonHandler(void) {
-
+    coinsInserted++;
 }

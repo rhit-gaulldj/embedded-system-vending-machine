@@ -66,10 +66,11 @@ extern "C"
 #define B_FLAG_MASK         0x01
 #define S_FLAG_MASK         0x01
 
-extern void configLCD(uint32_t clkFreq, pin_t rs_p, pin_t e_p, pin_t db7_p, pin_t db6_p, pin_t db5_p, pin_t db4_p);
-extern void initLCD(void);
-extern void printChar(char character);
-extern void printString(char *str);
+void configLCD(uint32_t clkFreq, pin_t rs_p, pin_t e_p, pin_t db7_p, pin_t db6_p, pin_t db5_p, pin_t db4_p);
+void initLCD(void);
+void printChar(char character);
+void printString(char *str);
+void clearDisplay(void);
 
 //*****************************************************************************
 //

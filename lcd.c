@@ -91,24 +91,39 @@ void dataInstruction(uint8_t data) {
 void initLCD(void) {
     // follows initialization sequence described for 8-bit data mode in
     //  Figure 23 of HD447780 data sheet
+//    delayMilliSec(40);
+//    commandInstruction(FUNCTION_SET_MASK | N_FLAG_MASK);
+//    delayMilliSec(20);
+//    commandInstruction(FUNCTION_SET_MASK | N_FLAG_MASK);
+//    delayMicroSec(150);
+//    commandInstruction(FUNCTION_SET_MASK | N_FLAG_MASK);
+//    delayMicroSec(SHORT_INSTR_DELAY);
+//    commandInstruction(FUNCTION_SET_MASK | N_FLAG_MASK);
+//    delayMicroSec(SHORT_INSTR_DELAY);
+//    commandInstruction(DISPLAY_CTRL_MASK);
+//    delayMicroSec(SHORT_INSTR_DELAY);
+//    commandInstruction(CLEAR_DISPLAY_MASK);
+//    delayMicroSec(SHORT_INSTR_DELAY);
+//    commandInstruction(ENTRY_MODE_MASK | ID_FLAG_MASK);
+//    delayMicroSec(LONG_INSTR_DELAY);
+//
+//    // after initialization and configuration, turn display ON
+//    commandInstruction(DISPLAY_CTRL_MASK | D_FLAG_MASK);
+
+    // Function set twice
     delayMilliSec(40);
     commandInstruction(FUNCTION_SET_MASK | N_FLAG_MASK);
-    delayMilliSec(5);
+    delayMilliSec(20);
     commandInstruction(FUNCTION_SET_MASK | N_FLAG_MASK);
-    delayMicroSec(150);
-    commandInstruction(FUNCTION_SET_MASK | N_FLAG_MASK);
-    delayMicroSec(SHORT_INSTR_DELAY);
-    commandInstruction(FUNCTION_SET_MASK | N_FLAG_MASK);
-    delayMicroSec(SHORT_INSTR_DELAY);
+    delayMilliSec(4);
+    // Display off/on
     commandInstruction(DISPLAY_CTRL_MASK);
-    delayMicroSec(SHORT_INSTR_DELAY);
-    commandInstruction(CLEAR_DISPLAY_MASK);
-    delayMicroSec(SHORT_INSTR_DELAY);
-    commandInstruction(ENTRY_MODE_MASK | ID_FLAG_MASK);
-    delayMicroSec(LONG_INSTR_DELAY);
-
-    // after initialization and configuration, turn display ON
+    delayMilliSec(4);
     commandInstruction(DISPLAY_CTRL_MASK | D_FLAG_MASK);
+    delayMilliSec(4);
+    clearDisplay();
+    delayMilliSec(4);
+    commandInstruction(ENTRY_MODE_MASK | ID_FLAG_MASK);
 }
 
 void printChar(char character) {

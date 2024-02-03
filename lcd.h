@@ -16,13 +16,6 @@ extern "C"
 #include "typedefs.h"
 #include "iohelper.h"
 
-// TODO: Remove
-#define LCD_DB_PORT         P4
-#define LCD_RS_PORT         P2
-#define LCD_EN_PORT         P2
-#define LCD_RS_MASK         BIT7
-#define LCD_EN_MASK         BIT6
-
 #define CTRL_MODE           0
 #define DATA_MODE           1
 #define LINE1_OFFSET        0x0

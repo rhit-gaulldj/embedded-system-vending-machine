@@ -37,8 +37,8 @@ void handleKey(keyType_t key);
 void init() {
     initConstants();
 
-//    configHFXT();
-//    configLFXT();
+    configHFXT();
+    configLFXT();
 
     // Initialize the keypad
     initKeypad(P6P6, P6P5, P6P4, P1P7,
@@ -74,10 +74,10 @@ void init() {
     }
 
     // Configure and initialize the LCD
-//    configLCD(MCLK_FREQUENCY, P4P3, P4P2, P6P0, P6P1, P4P0, P4P1);
-//    initLCD();
-//    clearDisplay();
-//    printString("Hello world!");
+    configLCD(MCLK_FREQUENCY, P4P3, P4P2, P6P0, P6P1, P4P0, P4P1);
+    initLCD();
+    clearDisplay();
+    printString("Hello world!");
 
     // Set up internal representation
     itemCode.letter = NoLetter;
@@ -132,8 +132,8 @@ void handleKey(keyType_t pressedKey) {
     // TODO: get the pressed key(s) and type them as necessary
     // Only do something if a letter is typed + no letter yet
     // Or number typed, letter is set, number is not set
-//    clearDisplay();
-//    printChar(getCharForKey(pressedKey));
+    clearDisplay();
+    printChar(getCharForKey(pressedKey));
 }
 
 void updateLcd(void) {

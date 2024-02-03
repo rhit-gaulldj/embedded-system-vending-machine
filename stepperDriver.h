@@ -36,7 +36,7 @@ void initStepperMotor(stepperMotor_t motor);
 // It is up to the caller to set up their interrupt handler
 void initStepperMotorTimer(void);
 
-void rotate(stepperMotor_t motor, uint8_t revolutions);
+void rotate(stepperMotor_t *motor, uint8_t revolutions);
 
 #ifdef __cplusplus
 }

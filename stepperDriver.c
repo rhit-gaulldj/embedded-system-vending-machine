@@ -5,14 +5,14 @@
 #define STEPPER_TIMER           TIMER_A1
 #define TIMER_INTERRUPT_BIT     TA1_0_IRQn
 
-#define STEPPER_PERIOD          3000
+#define STEPPER_PERIOD          2000
 #define STEP_SEQ_CNT            8
 
 const uint8_t stepperSequence[STEP_SEQ_CNT] = {0b0001, 0b0011, 0b0010, 0b0110,
                                                0b0100, 0b1100, 0b1000, 0b1001};
 uint8_t currentStep = 0;
 stepperMotor_t *currentlyRotating = NULL;
-uint8_t stepsRemaining = 0;
+uint16_t stepsRemaining = 0;
 
 void initStepperMotor(stepperMotor_t motor) {
     initOutputPin(motor.in1, Low);
@@ -23,13 +23,14 @@ void initStepperMotor(stepperMotor_t motor) {
 
 void initStepperMotorTimer(void) {
     STEPPER_TIMER->CCR[0] = STEPPER_PERIOD;
+    // 0000 0000 0001 0000 => 0x0010
     STEPPER_TIMER->CCTL[0] = 0x0010;
-    STEPPER_TIMER->CTL = 0x0280;
+    // XXXX XX10 1001 0000 => 0x0290 (prescaler of 4) - to enable interrupt here, set bit 1
+    STEPPER_TIMER->CTL = 0x0290;
+    // Prescaler of 6 - Total is 24
     STEPPER_TIMER->EX0 = 0x0005;
 
     NVIC->ISER[0] |= 1 << TIMER_INTERRUPT_BIT;
-
-    __enable_irq();
 }
 
 stepperMotor_t constructStepperMotor(uint8_t index, pin_t in1, pin_t in2, pin_t in3, pin_t in4) {
@@ -42,8 +43,8 @@ stepperMotor_t constructStepperMotor(uint8_t index, pin_t in1, pin_t in2, pin_t 
     return m;
 }
 
-void rotate(stepperMotor_t motor, uint8_t revolutions) {
-    currentlyRotating = &motor;
+void rotate(stepperMotor_t *motor, uint8_t revolutions) {
+    currentlyRotating = motor;
     stepsRemaining = revolutions * 64 * 64;
 }
 

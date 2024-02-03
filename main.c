@@ -46,7 +46,7 @@ void init() {
 
     // Initialize the stepper motor stuff
     steppers[0] = constructStepperMotor(0, P2P3, P2P4, P2P5, P2P6);
-    steppers[1] = constructStepperMotor(1, P3P5, P3P3, P3P2, P3P0);
+    steppers[1] = constructStepperMotor(1, P3P0, P3P2, P3P3, P3P5);
     steppers[2] = constructStepperMotor(2, P5P0, P5P1, P5P2, P5P4);
     steppers[3] = constructStepperMotor(3, P5P5, P5P6, P5P7, P6P7);
     initStepperMotor(steppers[0]);
@@ -74,16 +74,18 @@ void init() {
     }
 
     // Configure and initialize the LCD
-    configLCD(MCLK_FREQUENCY, P4P3, P4P2, P6P0, P6P1, P4P0, P4P1);
-    initLCD();
-    clearDisplay();
-    printString("Hello world!");
+    configLCD(P4P3, P4P2, P6P0, P6P1, P4P0, P4P1);
+    lcd_init();
+    lcd_clear();
+    lcd_puts("Hello world!");
 
     // Set up internal representation
     itemCode.letter = NoLetter;
     itemCode.digit = NoNumber;
     currentMode = EnteringCode;
     coinsInserted = 0;
+
+    __enable_irq();
 }
 
 void main(void)
@@ -132,8 +134,11 @@ void handleKey(keyType_t pressedKey) {
     // TODO: get the pressed key(s) and type them as necessary
     // Only do something if a letter is typed + no letter yet
     // Or number typed, letter is set, number is not set
-    clearDisplay();
-    printChar(getCharForKey(pressedKey));
+//    lcd_clear();
+//    lcd_putch(getCharForKey(pressedKey));
+    if (pressedKey == KeyPound) {
+        rotate(&(steppers[1]), 1);
+    }
 }
 
 void updateLcd(void) {
@@ -156,7 +161,6 @@ void updateLcd(void) {
 void resetInput(void) {
     itemCode.letter = NoLetter;
     itemCode.digit = NoNumber;
-    clearDisplay();
 }
 
 void submitButtonHandler(void) {

@@ -11,7 +11,7 @@
 pin_t rs, e, db7, db6, db5, db4;
 pin_t outputPins[4];
 
-void configLCD(uint32_t clkFreq, pin_t rs_p, pin_t e_p, pin_t db7_p, pin_t db6_p, pin_t db5_p, pin_t db4_p) {
+void configLCD(pin_t rs_p, pin_t e_p, pin_t db7_p, pin_t db6_p, pin_t db5_p, pin_t db4_p) {
     rs = rs_p;
     e = e_p;
     db7 = db7_p;
@@ -29,114 +29,140 @@ void configLCD(uint32_t clkFreq, pin_t rs_p, pin_t e_p, pin_t db7_p, pin_t db6_p
     initOutputPin(db6, Low);
     initOutputPin(db5, Low);
     initOutputPin(db4, Low);
-
-    initDelayTimer(clkFreq);
 }
 
-void instructionDelay(uint8_t mode, uint8_t instruction) {
-    // if instruction is Return Home or Clear Display, use long delay for
-    //  instruction execution; otherwise, use short delay
-    if ((mode == DATA_MODE) || (instruction & NONHOME_MASK)) {
-        delayMicroSec(SHORT_INSTR_DELAY);
-    }
-    else {
-        delayMicroSec(LONG_INSTR_DELAY);
-    }
+void setCommandMode() {
+    clearOutput(rs);
 }
-
-void flashData() {
+void setDataMode() {
+    setOutput(rs);
+}
+void setEnableHigh() {
     setOutput(e);
-    delayMicroSec(100);
+}
+void setEnableLow() {
     clearOutput(e);
 }
-void writeInstruction(uint8_t mode, uint8_t instruction) {
-    // set RS for data or control instruction mode
-    if (mode == DATA_MODE) {
-        setOutput(rs);
-    } else {
-        clearOutput(rs);
-    }
 
-    // Send data to the output pins
+void lcd_init(void)
+{
+    setCommandMode();
+
+    setEnableLow();
+
+    // https://www.sparkfun.com/datasheets/LCD/HD44780.pdf page 42
+    DelayMs(20); // wait 15mSec after power applied,
+    lcd8bits_write(CMD_MODE, LCDCMD_FunctionSet4bit); // function set
+    DelayMs(20);
+    lcd_write(CMD_MODE, LCDCMD_FunctionSet4bit); // function set again
+    DelayMs(4);
+    // turn display off, then on
+    lcd_write(CMD_MODE, LCDCMD_DisplayOff);
+    DelayMs(4);
+    lcd_write(CMD_MODE, LCDCMD_DisplaySettings); // display ON/OFF control: display on, cursor off, blink off
+
+    DelayMs(4);
+    lcd_clear(); // Clear screen
+    DelayMs(4);
+    lcd_write(CMD_MODE, LCDCMD_EMS); // Set entry Mode
+}
+
+//making E line rise and then fall.  This falling edge
+//writes data on LCD Panel pin DB7-0 into LCD Panel.
+void LCD_STROBE(void) {
+    setEnableHigh();
+    DelayMs(10);
+    setEnableLow();
+    DelayMs(1);
+}
+
+void lcd_write(unsigned char mode, unsigned char CmdChar) {
+    lcd4bits_write(mode, CmdChar);
+//    lcd8bits_write(mode, CmdChar);
+}
+
+/*
+ * lcd_write function ---writes a byte to the LCD in 8-bit mode
+ * Note that the "mode" argument is set to either CMD_MODE (=0) or DTA_MODE (=1), so that the
+ * LCD panel knows whether an instruction byte is being written to it or an ASCII code is being written to it
+ * that is to be displayed on the panel.
+ */
+void lcd8bits_write(unsigned char mode, unsigned char CmdChar) {
+
+    if(mode==CMD_MODE) {
+        setCommandMode();
+    }
+    else {
+        setDataMode();
+    }
+    DelayMs(10);
+    //LCD_DATA->OUT = CmdChar;
+    LCD_STROBE(); // Write 8 bits of data on D7-0
+}
+
+void lcd4bits_write(unsigned char mode, unsigned char CmdChar) {
+
+    if(mode==CMD_MODE) {
+        setCommandMode();
+    }
+    else {
+        setDataMode();
+    }
+    DelayMs(10);
+    char data = CmdChar & 0b11110000;
     int i;
     for (i = 0; i < 4; i++) {
-        if (instruction & (1 << (i+4))) {
+        if (data & (1 << (i+4))) {
             setOutput(outputPins[i]);
         } else {
             clearOutput(outputPins[i]);
         }
     }
-    flashData();
-    // Set the lower 4 bits
+    LCD_STROBE();
+//    DelayMs(2);
+    data = (CmdChar & 0b00001111) << 4;
     for (i = 0; i < 4; i++) {
-        if (instruction & (1 << i)) {
+        if (data & (1 << i)) {
             setOutput(outputPins[i]);
         } else {
             clearOutput(outputPins[i]);
         }
     }
-    flashData();
-
-    // delay to allow instruction execution to complete
-    instructionDelay(mode, instruction);
+    LCD_STROBE();
 }
 
-void commandInstruction(uint8_t command) {
-    writeInstruction(CTRL_MODE, command);
-}
-void dataInstruction(uint8_t data) {
-    writeInstruction(DATA_MODE, data);
-}
-
-void initLCD(void) {
-    // follows initialization sequence described for 8-bit data mode in
-    //  Figure 23 of HD447780 data sheet
-//    delayMilliSec(40);
-//    commandInstruction(FUNCTION_SET_MASK | N_FLAG_MASK);
-//    delayMilliSec(20);
-//    commandInstruction(FUNCTION_SET_MASK | N_FLAG_MASK);
-//    delayMicroSec(150);
-//    commandInstruction(FUNCTION_SET_MASK | N_FLAG_MASK);
-//    delayMicroSec(SHORT_INSTR_DELAY);
-//    commandInstruction(FUNCTION_SET_MASK | N_FLAG_MASK);
-//    delayMicroSec(SHORT_INSTR_DELAY);
-//    commandInstruction(DISPLAY_CTRL_MASK);
-//    delayMicroSec(SHORT_INSTR_DELAY);
-//    commandInstruction(CLEAR_DISPLAY_MASK);
-//    delayMicroSec(SHORT_INSTR_DELAY);
-//    commandInstruction(ENTRY_MODE_MASK | ID_FLAG_MASK);
-//    delayMicroSec(LONG_INSTR_DELAY);
-//
-//    // after initialization and configuration, turn display ON
-//    commandInstruction(DISPLAY_CTRL_MASK | D_FLAG_MASK);
-
-    // Function set twice
-    delayMilliSec(40);
-    commandInstruction(FUNCTION_SET_MASK | N_FLAG_MASK);
-    delayMilliSec(20);
-    commandInstruction(FUNCTION_SET_MASK | N_FLAG_MASK);
-    delayMilliSec(4);
-    // Display off/on
-    commandInstruction(DISPLAY_CTRL_MASK);
-    delayMilliSec(4);
-    commandInstruction(DISPLAY_CTRL_MASK | D_FLAG_MASK);
-    delayMilliSec(4);
-    clearDisplay();
-    delayMilliSec(4);
-    commandInstruction(ENTRY_MODE_MASK | ID_FLAG_MASK);
+/* write a string of chars to the LCD */
+void lcd_puts(char *string) {
+    while (*string != 0) // Last character in a C-language string is alway "0" (ASCII NULL character)
+        lcd_write(DATA_MODE, *string++);
 }
 
-void printChar(char character) {
-    dataInstruction(character);
+/*
+ *  Clear and home the LCD
+ */
+void lcd_clear(void) {
+    lcd_write(CMD_MODE, LCDCMD_ClearDisplay);
+    DelayMs(2);
 }
 
-void printString(char *str) {
-    int i;
-    for (i = 0; str[i] != '\0'; i++) {
-        printChar(str[i]);
-    }
+/* write one character to the LCD */
+void lcd_putch(char character) {
+    lcd_write(DATA_MODE, character);
 }
 
-void clearDisplay() {
-    commandInstruction(CLEAR_DISPLAY_MASK);
+/*
+ * Moves cursor to desired position.
+ * For 16 x 2 LCD display panel,
+ *     the columns of Row 1 are 0x00....0x10
+ *     the columns of Row 2 are 0x40....0x50
+ */
+void lcd_SetLineNumber(unsigned char position) {
+    lcd_write(CMD_MODE, 0x80 | position); // The "cursor move" command is indicated by MSB=1 (0x80)
+    // followed by the panel position address (0x00- 0x7F)
+}
+
+void DelayMs(unsigned int nrms) {
+    unsigned int i, j;
+    for (j = 0; j < nrms; j++)
+        for (i = 0; i < 20; i++);
 }

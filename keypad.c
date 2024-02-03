@@ -14,6 +14,12 @@ struct keypad_pins {
 };
 struct keypad_pins pins;
 
+const keyType_t allKeys[NUM_KEYS] = {
+                               KeyPound,KeyStar,
+                               Key0,Key9,Key8,Key7,Key6,Key5,Key4,Key3,Key2,Key1,
+                               KeyD,KeyC,KeyB,KeyA
+};
+
 void initKeypad(pin_t pin0, pin_t pin1, pin_t pin2, pin_t pin3,
                 pin_t pin4, pin_t pin5, pin_t pin6, pin_t pin7) {
     // Columns are output
@@ -110,4 +116,67 @@ keys_t getPressedKeys() {
     clearOutput(pins.pin2);
 
     return result;
+}
+
+char getCharForKey(keyType_t key) {
+    switch (key) {
+        case KeyA:
+            return 'A';
+        case KeyB:
+            return 'B';
+        case KeyC:
+            return 'C';
+        case KeyD:
+            return 'D';
+        case Key0:
+            return '0';
+        case Key1:
+            return '1';
+        case Key2:
+            return '2';
+        case Key3:
+            return '3';
+        case Key4:
+            return '4';
+        case Key5:
+            return '5';
+        case Key6:
+            return '6';
+        case Key7:
+            return '7';
+        case Key8:
+            return '8';
+        case Key9:
+            return '9';
+        case KeyPound:
+            return '#';
+        case KeyStar:
+            return '*';
+    }
+    return ' ';
+}
+
+keyCategory_t getKeyCategory(keyType_t key) {
+    switch (key) {
+        case Key0:
+        case Key1:
+        case Key2:
+        case Key3:
+        case Key4:
+        case Key5:
+        case Key6:
+        case Key7:
+        case Key8:
+        case Key9:
+            return KCNumber;
+        case KeyA:
+        case KeyB:
+        case KeyC:
+        case KeyD:
+            return KCLetter;
+        case KeyStar:
+        case KeyPound:
+            return KCOther;
+    }
+    return KCOther;
 }

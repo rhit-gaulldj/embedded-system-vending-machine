@@ -13,6 +13,19 @@
 // A, B, C, D, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, *, #
 typedef uint16_t keys_t;
 
+typedef enum _keyEnum {
+    KeyA,KeyB,KeyC,KeyD,
+    Key1,Key2,Key3,Key4,Key5,Key6,Key7,Key8,Key9,Key0,
+    KeyStar,KeyPound
+
+} keyType_t;
+#define NUM_KEYS 16
+extern const keyType_t allKeys[NUM_KEYS];
+
+typedef enum _keyMetaType {
+    KCNumber, KCLetter, KCOther
+} keyCategory_t;
+
 #define KEYA_MASK       1<<15;
 #define KEYB_MASK       1<<14;
 #define KEYC_MASK       1<<13;
@@ -38,6 +51,9 @@ void initKeypad(pin_t pin0, pin_t pin1, pin_t pin2, pin_t pin3,
 // Polls and returns the currently held-down keys
 // The bit for the key is high if the key is pressed, low if not
 keys_t getPressedKeys(void);
+
+char getCharForKey(keyType_t key);
+keyCategory_t getKeyCategory(keyType_t key);
 
 // Returns the status of various buttons
 //buttonState_t getSubmitButtonStatus(void);

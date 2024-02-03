@@ -13,7 +13,7 @@ typedef enum _mode {
     ShowingPrice,
     EnteringCoins,
     DispensingItem,
-    Canceled;
+    ModeCanceled
 
 } mode_t;
 
@@ -22,14 +22,16 @@ button_t submitButton;
 button_t clearButton;
 button_t coinButton;
 
+mode_t currentMode = EnteringCode;
 itemcode_t itemCode;
-uint8_t coinsInserted;
+uint8_t coinsInserted = 0;
 
 // Functions defined further below
 void loop(void);
 void submitButtonHandler(void);
 void clearButtonHandler(void);
 void coinButtonHandler(void);
+void handleKey(keyType_t key);
 
 void init() {
     initConstants();
@@ -70,6 +72,8 @@ void init() {
     // Set up internal representation
     itemCode.letter = NoLetter;
     itemCode.digit = NoNumber;
+    currentMode = EnteringCode;
+    coinsInserted = 0;
 }
 
 void main(void)
@@ -94,14 +98,31 @@ void loop(void) {
         updateButton(coinButton);
     }
 
-    // TEST: Prints out the currently-held buttons on the keypad
     static keys_t pressedKeys;
     static keys_t lastKeyState;
-    pressedKeys = getPressedKeys();
-    if (pressedKeys != lastKeyState) {
-        printf("0x%04x\n", pressedKeys);
+    if (currentMode == EnteringCode) {
+        pressedKeys = getPressedKeys();
+        if (pressedKeys != lastKeyState) {
+            int i;
+            for (i = 0; i < NUM_KEYS; i++) {
+                uint16_t currentlyDown = pressedKeys & (1 << i);
+                uint16_t prevDown = lastKeyState & (1 << i);
+                if (currentlyDown && !prevDown) {
+                    // Newly-pressed key
+                    keyType_t pressedKey = allKeys[i];
+                    handleKey(pressedKey);
+                }
+            }
+        }
         lastKeyState = pressedKeys;
     }
+}
+
+void handleKey(keyType_t pressedKey) {
+    // TODO: get the pressed key(s) and type them as necessary
+    // Only do something if a letter is typed + no letter yet
+    // Or number typed, letter is set, number is not set
+    printf("%c\n", getCharForKey(pressedKey));
 }
 
 void updateLcd(void) {
@@ -124,15 +145,12 @@ void updateLcd(void) {
 void resetInput(void) {
     itemCode.letter = NoLetter;
     itemCode.digit = NoNumber;
-    // TODO: LCD clear
+    clearDisplay();
 }
 
 void submitButtonHandler(void) {
-    resetInput();
 }
 void clearButtonHandler(void) {
-    resetInput();
 }
 void coinButtonHandler(void) {
-    coinsInserted++;
 }

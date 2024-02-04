@@ -31,20 +31,20 @@ buttonState_t getButtonState(button_t btn) {
 void registerButtonPressEvent(button_t *btn, void (*event)(void)) {
     btn->onPress = event;
 }
-void updateButton(button_t btn) {
-    buttonState_t status = getButtonState(btn);
+void updateButton(button_t *btn) {
+    buttonState_t status = getButtonState(*btn);
     // Check if button is pressed
-    if (status == Pressed && btn.status != Pressed) {
+    if (status == Pressed && btn->status != Pressed) {
         debounce();
-        btn.status = Pressed;
+        btn->status = Pressed;
         return;
     }
     // Check if button has been released
-    if (status == NotPressed && btn.status == Pressed) {
+    if (status == NotPressed && btn->status == Pressed) {
         debounce();
-        btn.status = NotPressed;
-        if (btn.onPress != NULL) {
-            btn.onPress();
+        btn->status = NotPressed;
+        if (btn->onPress != NULL) {
+            btn->onPress();
         }
         return;
     }

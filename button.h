@@ -30,6 +30,6 @@ void initButton(button_t btn);
 buttonState_t getButtonState(button_t btn);
 //void debounce(void); // Debounce only used internally
 void registerButtonPressEvent(button_t *btn, void (*event)(void));
-void updateButton(button_t btn);
+void updateButton(button_t *btn);
 
 #endif /* BUTTON_H_ */

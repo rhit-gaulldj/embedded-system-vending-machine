@@ -51,9 +51,9 @@ void init() {
     initStepperMotorTimer();
 
     // Initialize the various outside push buttons
-    submitButton = constructButton(P2P7, 0);
-    clearButton = constructButton(P4P0, 0);
-    coinButton = constructButton(P4P1, 0);
+    submitButton = constructButton(P1P1, 1);
+    clearButton = constructButton(P4P5, 1);
+    coinButton = constructButton(P1P4, 1);
     if (submitButton.exists) {
         initButton(submitButton);
         registerButtonPressEvent(&submitButton, submitButtonHandler);
@@ -95,13 +95,13 @@ void main(void)
 
 void loop(void) {
     if (submitButton.exists) {
-        updateButton(submitButton);
+        updateButton(&submitButton);
     }
     if (clearButton.exists) {
-        updateButton(clearButton);
+        updateButton(&clearButton);
     }
     if (coinButton.exists) {
-        updateButton(coinButton);
+        updateButton(&coinButton);
     }
 
     static keys_t pressedKeys;
@@ -159,9 +159,6 @@ void updateLcd(void) {
             break;
     }
     // TODO
-    // State 1:
-    // Enter Code: __
-    // (blank line 2)
 
     // State 2:
     // Cost: $_.__
@@ -174,14 +171,14 @@ void updateLcd(void) {
     // (able to cancel at any time until item dispensed)
 }
 
-void resetInput(void) {
-    itemCode.letter = NoLetter;
-    itemCode.digit = NoDigit;
-}
-
 void submitButtonHandler(void) {
 }
 void clearButtonHandler(void) {
+    if (currentMode == EnteringCode) {
+        itemCode.letter = NoLetter;
+        itemCode.digit = NoDigit;
+        updateLcd();
+    }
 }
 void coinButtonHandler(void) {
 }

@@ -77,7 +77,7 @@ void init() {
     configLCD(P4P3, P4P2, P6P0, P6P1, P4P0, P4P1);
     lcd_init();
     lcd_clear();
-    lcd_puts("Hello world!");
+    lcd_puts("Test string"); // TODO: Remove this test
 
     // Set up internal representation
     itemCode.letter = NoLetter;
@@ -135,7 +135,12 @@ void handleKey(keyType_t pressedKey) {
     // Only do something if a letter is typed + no letter yet
     // Or number typed, letter is set, number is not set
 //    lcd_clear();
-//    lcd_putch(getCharForKey(pressedKey));
+    lcd_SetLineNumber(FirstLine);
+    lcd_putch(getCharForKey(pressedKey));
+    int i;
+    for (i = 0; i < 10; i++) {
+        lcd_putch(' ');
+    }
     if (pressedKey == KeyPound) {
         rotate(&(steppers[1]), 1);
     }

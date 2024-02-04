@@ -52,7 +52,7 @@ void lcd_init(void)
 
     // https://www.sparkfun.com/datasheets/LCD/HD44780.pdf page 42
     DelayMs(20); // wait 15mSec after power applied,
-    lcd8bits_write(CMD_MODE, LCDCMD_FunctionSet4bit); // function set
+    lcd_write(CMD_MODE, LCDCMD_FunctionSet4bit); // function set
     DelayMs(20);
     lcd_write(CMD_MODE, LCDCMD_FunctionSet4bit); // function set again
     DelayMs(4);
@@ -71,7 +71,7 @@ void lcd_init(void)
 //writes data on LCD Panel pin DB7-0 into LCD Panel.
 void LCD_STROBE(void) {
     setEnableHigh();
-    DelayMs(10);
+    DelayMs(10); //10
     setEnableLow();
     DelayMs(1);
 }
@@ -96,7 +96,24 @@ void lcd8bits_write(unsigned char mode, unsigned char CmdChar) {
         setDataMode();
     }
     DelayMs(10);
-    //LCD_DATA->OUT = CmdChar;
+    // If we pretend we have 8 bits, we only write the upper 4 bits
+    char data = CmdChar & 0b11110000;
+    int i;
+    for (i = 0; i < 4; i++) {
+        if (data & (1 << (i+4))) {
+            setOutput(outputPins[i]);
+        } else {
+            clearOutput(outputPins[i]);
+        }
+    }
+//    data = CmdChar & 0b00001111;
+//    for (i = 0; i < 4; i++) {
+//        if (data & (1 << i)) {
+//            setOutput(outputPins[i]);
+//        } else {
+//            clearOutput(outputPins[i]);
+//        }
+//    }
     LCD_STROBE(); // Write 8 bits of data on D7-0
 }
 
@@ -119,8 +136,7 @@ void lcd4bits_write(unsigned char mode, unsigned char CmdChar) {
         }
     }
     LCD_STROBE();
-//    DelayMs(2);
-    data = (CmdChar & 0b00001111) << 4;
+    data = CmdChar & 0b00001111;
     for (i = 0; i < 4; i++) {
         if (data & (1 << i)) {
             setOutput(outputPins[i]);
@@ -129,6 +145,7 @@ void lcd4bits_write(unsigned char mode, unsigned char CmdChar) {
         }
     }
     LCD_STROBE();
+    DelayMs(40);
 }
 
 /* write a string of chars to the LCD */

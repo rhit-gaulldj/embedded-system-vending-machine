@@ -24,7 +24,7 @@ typedef enum _mode {
     EnteringCode,
     EnteringCoins,
     DispensingItem,
-    ModeCanceled
+    DisplayMessage
 
 } mode_t;
 

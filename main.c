@@ -16,6 +16,12 @@ price_t itemPrices[NUM_ITEMS];
 #define NUM_STEPPERS        NUM_ITEMS
 #define MCLK_FREQUENCY      48000000
 
+#define CANCEL_CLK          32000
+#define CANCEL_TIMER        TIMER_A2
+#define CANCEL_SECONDS      3 // Show "Canceled" for this many seconds
+#define CANCEL_PRESCALER    8
+#define CANCEL_PERIOD       CANCEL_CLK/CANCEL_PRESCALER*CANCEL_SECONDS
+
 stepperMotor_t steppers[NUM_STEPPERS];
 button_t submitButton;
 button_t clearButton;
@@ -94,6 +100,17 @@ void init() {
     itemPrices[2] = 0b00000101; // 000010 11 = $2.75
     itemPrices[3] = 0b00000110; // 000001 10 = $1.50
 
+    // Initialize the timer for the canceled mode
+    // Set it to use ACLK
+    // XXXX XX01 1100 0000 => ACLK, prescaler of 8, stop mode (for now)
+    CANCEL_TIMER->CTL = 0x01C0;
+    CANCEL_TIMER->EX0 = 0;
+    CANCEL_TIMER->CCR[0] = CANCEL_PERIOD;
+    // 0000 0000 0001 0000 => Just enable interrupt, compare mode
+    CANCEL_TIMER->CCTL[0] = 0x0010;
+
+    NVIC->ISER[0] |= 1 << TA2_0_IRQn;
+
     __enable_irq();
 }
 
@@ -151,6 +168,7 @@ void handleKey(keyType_t pressedKey) {
 }
 
 void updateLcd(void) {
+    int i;
     switch (currentMode) {
         case EnteringCode:
             lcd_SetLineNumber(FirstLine);
@@ -167,7 +185,6 @@ void updateLcd(void) {
             lcd_puts("  "); // Double space to fully clear the line
             // Clear the second line
             lcd_SetLineNumber(SecondLine);
-            int i;
             for (i = 0; i < 16; i++) {
                 lcd_putch(' ');
             }
@@ -183,6 +200,15 @@ void updateLcd(void) {
             lcd_SetLineNumber(SecondLine);
             lcd_puts(" (Press Submit) ");
             break;
+        case ModeCanceled:
+            lcd_SetLineNumber(FirstLine);
+            lcd_puts("   *Canceled*   ");
+            // Clear the second line
+            lcd_SetLineNumber(SecondLine);
+            for (i = 0; i < 16; i++) {
+                lcd_putch(' ');
+            }
+            break;
     }
     // TODO
 
@@ -191,6 +217,15 @@ void updateLcd(void) {
     // Insert: $_.__
 
     // (able to cancel at any time until item dispensed)
+}
+
+void enterCancelMode(void) {
+    itemCode.letter = NoLetter;
+    itemCode.digit = NoDigit;
+    currentMode = ModeCanceled;
+    CANCEL_TIMER->R = 0;
+    CANCEL_TIMER->CTL |= 0b0000000000010000; // 0000000000 01 0000 => Up mode (count up to CCR0)
+    updateLcd();
 }
 
 void submitButtonHandler(void) {
@@ -208,11 +243,21 @@ void submitButtonHandler(void) {
     }
 }
 void clearButtonHandler(void) {
-    if (currentMode == EnteringCode) {
-        // Reset the internal item, and update the display
-        itemCode.letter = NoLetter;
-        itemCode.digit = NoDigit;
-        updateLcd();
+    switch (currentMode) {
+        case EnteringCode:
+            // Reset the internal item, and update the display
+            itemCode.letter = NoLetter;
+            itemCode.digit = NoDigit;
+            updateLcd();
+            break;
+        case ShowingPrice:
+            enterCancelMode();
+            break;
+        case ModeCanceled:
+            // Canceling while in canceled mode will reset
+            currentMode = EnteringCode;
+            updateLcd();
+            break;
     }
 }
 void coinButtonHandler(void) {
@@ -227,4 +272,16 @@ price_t getPrice(itemcode_t code) {
         }
     }
     return INVALID_PRICE;
+}
+
+void TA2_0_IRQHandler(void) {
+    if (currentMode != EnteringCode) {
+        currentMode = EnteringCode;
+        updateLcd();
+    }
+
+    // Stop the timer
+    CANCEL_TIMER->CTL &= 0b1111111111001111; // 1111 1111 11__ 1111
+    // Clear interrupt flag
+    CANCEL_TIMER->CCTL[0] &= ~0x0001;
 }

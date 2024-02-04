@@ -8,7 +8,12 @@
 #include "typedefs.h"
 #include "util.h"
 
-#define NUM_STEPPERS        4
+
+#define NUM_ITEMS           4
+itemcode_t itemCodes[NUM_ITEMS];
+price_t itemPrices[NUM_ITEMS];
+
+#define NUM_STEPPERS        NUM_ITEMS
 #define MCLK_FREQUENCY      48000000
 
 stepperMotor_t steppers[NUM_STEPPERS];
@@ -27,6 +32,7 @@ void clearButtonHandler(void);
 void coinButtonHandler(void);
 void handleKey(keyType_t key);
 void updateLcd();
+price_t getPrice(itemcode_t code);
 
 void init() {
     initConstants();
@@ -51,9 +57,9 @@ void init() {
     initStepperMotorTimer();
 
     // Initialize the various outside push buttons
-    submitButton = constructButton(P1P1, 1);
+    submitButton = constructButton(P1P4, 1);
     clearButton = constructButton(P4P5, 1);
-    coinButton = constructButton(P1P4, 1);
+    coinButton = constructButton(P1P1, 1);
     if (submitButton.exists) {
         initButton(submitButton);
         registerButtonPressEvent(&submitButton, submitButtonHandler);
@@ -78,6 +84,15 @@ void init() {
     itemCode.digit = NoDigit;
     currentMode = EnteringCode;
     coinsInserted = 0;
+
+    itemCodes[0] = constructItemCode(A, _1);
+    itemCodes[1] = constructItemCode(A, _2);
+    itemCodes[2] = constructItemCode(B, _1);
+    itemCodes[3] = constructItemCode(B, _2);
+    itemPrices[0] = 0b00000100; // 000001 00 = $1.00
+    itemPrices[1] = 0b00000101; // 000001 01 = $1.25
+    itemPrices[2] = 0b00000101; // 000010 11 = $2.75
+    itemPrices[3] = 0b00000110; // 000001 10 = $1.50
 
     __enable_irq();
 }
@@ -157,12 +172,19 @@ void updateLcd(void) {
                 lcd_putch(' ');
             }
             break;
+        case ShowingPrice:
+            lcd_SetLineNumber(FirstLine);
+            lcd_puts("Cost: ");
+            char buffer[6];
+            price_t price = getPrice(itemCode);
+            priceToString(price, buffer);
+            lcd_puts(buffer);
+            lcd_puts("     "); // Fill out the line
+            lcd_SetLineNumber(SecondLine);
+            lcd_puts(" (Press Submit) ");
+            break;
     }
     // TODO
-
-    // State 2:
-    // Cost: $_.__
-    // Press Submit
 
     // State 3:
     // Item: __
@@ -172,13 +194,37 @@ void updateLcd(void) {
 }
 
 void submitButtonHandler(void) {
+    if (currentMode == EnteringCode) {
+        // Check if the code is a valid item
+        price_t price = getPrice(itemCode);
+        // If invalid item, need to tell user and not accept
+        if (price == INVALID_PRICE) {
+            lcd_SetLineNumber(SecondLine);
+            lcd_puts(" *Invalid Code* ");
+        } else {
+            currentMode = ShowingPrice;
+            updateLcd();
+        }
+    }
 }
 void clearButtonHandler(void) {
     if (currentMode == EnteringCode) {
+        // Reset the internal item, and update the display
         itemCode.letter = NoLetter;
         itemCode.digit = NoDigit;
         updateLcd();
     }
 }
 void coinButtonHandler(void) {
+}
+
+price_t getPrice(itemcode_t code) {
+    int i;
+    for (i = 0; i < NUM_ITEMS; i++) {
+        itemcode_t code = itemCodes[i];
+        if (code.letter == itemCode.letter && code.digit == itemCode.digit) {
+            return itemPrices[i];
+        }
+    }
+    return INVALID_PRICE;
 }

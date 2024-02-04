@@ -3,8 +3,10 @@
 #ifndef TYPEDEFS_H_
 #define TYPEDEFS_H_
 
+#include "msp.h"
+
 typedef enum _bool {
-    True, False
+    False, True
 } bool_t;
 
 typedef enum _letter {
@@ -26,5 +28,12 @@ typedef enum _mode {
     ModeCanceled
 
 } mode_t;
+
+// Lets be smart with our prices
+// 8 bits means we can have:
+// Upper 6 bits for the whole number
+// Lower 2 bits for the fraction (.00, .25, .50, .75)
+typedef uint8_t price_t;
+#define INVALID_PRICE 0b11111111
 
 #endif

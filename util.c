@@ -78,3 +78,37 @@ digit_t getDigitForKey(keyType_t key) {
     }
     return NoDigit;
 }
+
+itemcode_t constructItemCode(letter_t letter, digit_t digit) {
+    itemcode_t code;
+    code.letter = letter;
+    code.digit = digit;
+    return code;
+}
+
+void priceToString(price_t price, char *buffer) {
+    buffer[0] = '$';
+    // Calculate the first digit
+    uint8_t wholeNumber = (price & 0b11111100) >> 2;
+    switch (wholeNumber) {
+        case 0: buffer[1] = '0'; break;
+        case 1: buffer[1] = '1'; break;
+        case 2: buffer[1] = '2'; break;
+        case 3: buffer[1] = '3'; break;
+        case 4: buffer[1] = '4'; break;
+        case 5: buffer[1] = '5'; break;
+        case 6: buffer[1] = '6'; break;
+        case 7: buffer[1] = '7'; break;
+        case 8: buffer[1] = '8'; break;
+        case 9: buffer[1] = '9'; break;
+    }
+    buffer[2] = '.';
+    uint8_t decimal = price & 0b00000011;
+    switch (decimal) {
+        case 0: buffer[3] = '0'; buffer[4] = '0'; break;
+        case 1: buffer[3] = '2'; buffer[4] = '5'; break;
+        case 2: buffer[3] = '5'; buffer[4] = '0'; break;
+        case 3: buffer[3] = '7'; buffer[4] = '5'; break;
+    }
+    buffer[5] = '\0';
+}

@@ -22,7 +22,6 @@ typedef struct _itemcode {
 
 typedef enum _mode {
     EnteringCode,
-    ShowingPrice,
     EnteringCoins,
     DispensingItem,
     ModeCanceled

@@ -189,16 +189,20 @@ void updateLcd(void) {
                 lcd_putch(' ');
             }
             break;
-        case ShowingPrice:
+        case EnteringCoins:
             lcd_SetLineNumber(FirstLine);
-            lcd_puts("Cost: ");
+            lcd_puts("Item: "); // Item: __00000000 (8 spaces)
+            lcd_putch(getCharForLetter(itemCode.letter));
+            lcd_putch(getCharForDigit(itemCode.digit));
+            lcd_puts("        ");
+
+            lcd_SetLineNumber(SecondLine);
+            lcd_puts("Insert: "); // Insert: $_.__000
             char buffer[6];
             price_t price = getPrice(itemCode);
             priceToString(price, buffer);
             lcd_puts(buffer);
-            lcd_puts("     "); // Fill out the line
-            lcd_SetLineNumber(SecondLine);
-            lcd_puts(" (Press Submit) ");
+            lcd_puts("   "); // Fill out the line
             break;
         case ModeCanceled:
             lcd_SetLineNumber(FirstLine);
@@ -229,17 +233,25 @@ void enterCancelMode(void) {
 }
 
 void submitButtonHandler(void) {
-    if (currentMode == EnteringCode) {
-        // Check if the code is a valid item
-        price_t price = getPrice(itemCode);
-        // If invalid item, need to tell user and not accept
-        if (price == INVALID_PRICE) {
-            lcd_SetLineNumber(SecondLine);
-            lcd_puts(" *Invalid Code* ");
-        } else {
-            currentMode = ShowingPrice;
-            updateLcd();
+    switch (currentMode) {
+        case EnteringCode: {
+            // Check if the code is a valid item
+            price_t price = getPrice(itemCode);
+            // If invalid item, need to tell user and not accept
+            if (price == INVALID_PRICE) {
+                lcd_SetLineNumber(SecondLine);
+                lcd_puts(" *Invalid Code* ");
+            } else {
+                currentMode = EnteringCoins;
+                updateLcd();
+            }
+            break;
         }
+        case ModeCanceled:
+            // Entering while in canceled mode will reset
+            currentMode = EnteringCode;
+            updateLcd();
+            break;
     }
 }
 void clearButtonHandler(void) {
@@ -250,7 +262,7 @@ void clearButtonHandler(void) {
             itemCode.digit = NoDigit;
             updateLcd();
             break;
-        case ShowingPrice:
+        case EnteringCoins:
             enterCancelMode();
             break;
         case ModeCanceled:

@@ -42,6 +42,8 @@ extern port_t Port4;
 extern port_t Port5;
 extern port_t Port6;
 
+extern pin_t P1P1;
+extern pin_t P1P4;
 extern pin_t P1P5;
 extern pin_t P1P6;
 extern pin_t P1P7;
@@ -87,17 +89,6 @@ extern pin_t P6P4;
 extern pin_t P6P5;
 extern pin_t P6P6;
 extern pin_t P6P7;
-
-typedef enum _letter {
-    NoLetter, A, B, C, D
-} letter_t;
-typedef enum _digit {
-    NoNumber, _0, _1, _2, _3, _4, _5, _6, _7, _8, _9
-} digit_t;
-typedef struct _itemcode {
-    letter_t letter;
-    digit_t digit;
-} itemcode_t;
 
 typedef enum _pinVal {
     High,

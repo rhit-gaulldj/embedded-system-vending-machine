@@ -52,7 +52,7 @@ void lcd_init(void)
 
     // https://www.sparkfun.com/datasheets/LCD/HD44780.pdf page 42
     DelayMs(20); // wait 15mSec after power applied,
-    lcd_write(CMD_MODE, LCDCMD_FunctionSet4bit); // function set
+    lcd8bits_write(CMD_MODE, LCDCMD_FunctionSet4bit); // function set
     DelayMs(20);
     lcd_write(CMD_MODE, LCDCMD_FunctionSet4bit); // function set again
     DelayMs(4);
@@ -65,6 +65,7 @@ void lcd_init(void)
     lcd_clear(); // Clear screen
     DelayMs(4);
     lcd_write(CMD_MODE, LCDCMD_EMS); // Set entry Mode
+    DelayMs(20);
 }
 
 //making E line rise and then fall.  This falling edge

@@ -8,6 +8,8 @@ port_t Port4;
 port_t Port5;
 port_t Port6;
 
+pin_t P1P1;
+pin_t P1P4;
 pin_t P1P5;
 pin_t P1P6;
 pin_t P1P7;
@@ -83,6 +85,10 @@ void initConstants(void) {
     Port5 = initOddPort(P5);
     Port6 = initEvenPort(P6);
 
+    P1P1.port = Port1;
+    P1P1.pin = 1;
+    P1P4.port = Port1;
+    P1P4.pin = 4;
     P1P5.port = Port1;
     P1P5.pin = 5;
     P1P6.port = Port1;

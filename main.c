@@ -5,18 +5,11 @@
 #include "stepperDriver.h"
 #include "lcd.h"
 #include "button.h"
+#include "typedefs.h"
+#include "util.h"
 
 #define NUM_STEPPERS        4
 #define MCLK_FREQUENCY      48000000
-
-typedef enum _mode {
-    EnteringCode,
-    ShowingPrice,
-    EnteringCoins,
-    DispensingItem,
-    ModeCanceled
-
-} mode_t;
 
 stepperMotor_t steppers[NUM_STEPPERS];
 button_t submitButton;
@@ -33,6 +26,7 @@ void submitButtonHandler(void);
 void clearButtonHandler(void);
 void coinButtonHandler(void);
 void handleKey(keyType_t key);
+void updateLcd();
 
 void init() {
     initConstants();
@@ -57,9 +51,9 @@ void init() {
     initStepperMotorTimer();
 
     // Initialize the various outside push buttons
-    submitButton = constructButton(P2P7, 1);
-    clearButton = constructButton(P4P0, 1);
-    coinButton = constructButton(P4P1, 1);
+    submitButton = constructButton(P2P7, 0);
+    clearButton = constructButton(P4P0, 0);
+    coinButton = constructButton(P4P1, 0);
     if (submitButton.exists) {
         initButton(submitButton);
         registerButtonPressEvent(&submitButton, submitButtonHandler);
@@ -77,11 +71,11 @@ void init() {
     configLCD(P4P3, P4P2, P6P0, P6P1, P4P0, P4P1);
     lcd_init();
     lcd_clear();
-    lcd_puts("Test string"); // TODO: Remove this test
+    updateLcd();
 
     // Set up internal representation
     itemCode.letter = NoLetter;
-    itemCode.digit = NoNumber;
+    itemCode.digit = NoDigit;
     currentMode = EnteringCode;
     coinsInserted = 0;
 
@@ -131,22 +125,39 @@ void loop(void) {
 }
 
 void handleKey(keyType_t pressedKey) {
-    // TODO: get the pressed key(s) and type them as necessary
-    // Only do something if a letter is typed + no letter yet
-    // Or number typed, letter is set, number is not set
-//    lcd_clear();
-    lcd_SetLineNumber(FirstLine);
-    lcd_putch(getCharForKey(pressedKey));
-    int i;
-    for (i = 0; i < 10; i++) {
-        lcd_putch(' ');
-    }
-    if (pressedKey == KeyPound) {
-        rotate(&(steppers[1]), 1);
+    keyCategory_t cat = getKeyCategory(pressedKey);
+    if (cat == KCLetter && itemCode.letter == NoLetter) {
+        itemCode.letter = getLetterForKey(pressedKey);
+        updateLcd();
+    } else if (cat == KCNumber && itemCode.digit == NoDigit && itemCode.letter != NoLetter) {
+        itemCode.digit = getDigitForKey(pressedKey);
+        updateLcd();
     }
 }
 
 void updateLcd(void) {
+    switch (currentMode) {
+        case EnteringCode:
+            lcd_SetLineNumber(FirstLine);
+            lcd_puts("Enter Code: ");
+            char letter = '_', digit = '_';
+            if (itemCode.letter != NoLetter) {
+                letter = getCharForLetter(itemCode.letter);
+                if (itemCode.digit != NoDigit) {
+                    digit = getCharForDigit(itemCode.digit);
+                }
+            }
+            lcd_putch(letter);
+            lcd_putch(digit);
+            lcd_puts("  "); // Double space to fully clear the line
+            // Clear the second line
+            lcd_SetLineNumber(SecondLine);
+            int i;
+            for (i = 0; i < 16; i++) {
+                lcd_putch(' ');
+            }
+            break;
+    }
     // TODO
     // State 1:
     // Enter Code: __
@@ -165,7 +176,7 @@ void updateLcd(void) {
 
 void resetInput(void) {
     itemCode.letter = NoLetter;
-    itemCode.digit = NoNumber;
+    itemCode.digit = NoDigit;
 }
 
 void submitButtonHandler(void) {

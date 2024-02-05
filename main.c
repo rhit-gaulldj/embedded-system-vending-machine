@@ -234,6 +234,12 @@ void updateLcd(void) {
     }
 }
 
+void dispense(void) {
+    currentMode = DispensingItem;
+    updateLcd();
+    // TODO: Rotate the correct stepper motor
+}
+
 void enterMessageMode(void) {
     itemCode.letter = NoLetter;
     itemCode.digit = NoDigit;
@@ -247,14 +253,22 @@ void submitButtonHandler(void) {
     switch (currentMode) {
         case EnteringCode: {
             // Check if the code is a valid item
-            uint8_t price = getCoinsForItem(itemCode);
+            uint8_t coins = getCoinsForItem(itemCode);
             // If invalid item, need to tell user and not accept
-            if (price == 0) {
+            if (coins  == 0) {
                 setMessage(" *Invalid Code* ");
                 enterMessageMode();
             } else {
-                currentMode = EnteringCoins;
-                updateLcd();
+                // Check if we've already gotten all the coins
+                if (coinsInserted >= coins) {
+                    // Dispense immediately
+                    coinsInserted -= coins;
+                    dispense();
+
+                } else {
+                    currentMode = EnteringCoins;
+                    updateLcd();
+                }
             }
             break;
         }
@@ -293,21 +307,39 @@ void coinButtonHandler(void) {
         uint8_t coinsRequired = getCoinsForItem(itemCode);
         if (coinsInserted >= coinsRequired) {
             coinsInserted -= coinsRequired;
-            currentMode = DispensingItem;
-            updateLcd();
+            dispense();
         }
     }
 }
 
-uint8_t getCoinsForItem(itemcode_t code) {
+#define INVALID_INDEX   100
+
+uint8_t getIndexForItem(itemcode_t code) {
     int i;
     for (i = 0; i < NUM_ITEMS; i++) {
         itemcode_t code = itemCodes[i];
         if (code.letter == itemCode.letter && code.digit == itemCode.digit) {
-            return itemPrices[i];
+            return i;
         }
     }
-    return 0;
+    return INVALID_INDEX;
+}
+
+uint8_t getCoinsForItem(itemcode_t code) {
+    uint8_t index = getIndexForItem(code);
+    if (index == INVALID_INDEX) {
+        return 0;
+    } else {
+        return itemPrices[getIndexForItem(code)];
+    }
+//    int i;
+//    for (i = 0; i < NUM_ITEMS; i++) {
+//        itemcode_t code = itemCodes[i];
+//        if (code.letter == itemCode.letter && code.digit == itemCode.digit) {
+//            return itemPrices[i];
+//        }
+//    }
+//    return 0;
 }
 
 void setMessage(char *m) {

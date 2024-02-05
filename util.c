@@ -86,7 +86,7 @@ itemcode_t constructItemCode(letter_t letter, digit_t digit) {
     return code;
 }
 
-void priceToString(price_t price, char *buffer) {
+void moneyToString(money_t price, char *buffer) {
     buffer[0] = '$';
     // Calculate the first digit
     uint8_t wholeNumber = (price & 0b11111100) >> 2;
@@ -111,4 +111,28 @@ void priceToString(price_t price, char *buffer) {
         case 3: buffer[3] = '7'; buffer[4] = '5'; break;
     }
     buffer[5] = '\0';
+}
+
+money_t coinsToMoney(uint8_t coins) {
+    // Divide by 4 to get the dollars, then use the remainder to get the cents part
+    uint8_t coinsPerDollar = 4;
+    uint8_t dollars = coins / coinsPerDollar;
+    uint8_t remainder = coins % coinsPerDollar;
+    money_t money = dollars << 2;
+    // Now calculate the "cents"
+    switch (remainder) {
+        case 0:
+            money |= 0b00;
+            break;
+        case 1:
+            money |= 0b01;
+            break;
+        case 2:
+            money |= 0b10;
+            break;
+        case 3:
+            money |= 0b11;
+            break;
+    }
+    return money;
 }

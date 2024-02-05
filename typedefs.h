@@ -28,11 +28,11 @@ typedef enum _mode {
 
 } mode_t;
 
-// Lets be smart with our prices
+// Lets be smart with our money
 // 8 bits means we can have:
 // Upper 6 bits for the whole number
 // Lower 2 bits for the fraction (.00, .25, .50, .75)
-typedef uint8_t price_t;
-#define INVALID_PRICE 0b11111111
+typedef uint8_t money_t;
+#define INVALID_MONEY 0b11111111
 
 #endif

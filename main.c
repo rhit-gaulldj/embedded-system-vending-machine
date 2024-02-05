@@ -11,7 +11,7 @@
 
 #define NUM_ITEMS           4
 itemcode_t itemCodes[NUM_ITEMS];
-price_t itemPrices[NUM_ITEMS];
+uint8_t itemPrices[NUM_ITEMS];
 
 #define NUM_STEPPERS        NUM_ITEMS
 #define MCLK_FREQUENCY      48000000
@@ -39,7 +39,7 @@ void clearButtonHandler(void);
 void coinButtonHandler(void);
 void handleKey(keyType_t key);
 void updateLcd();
-price_t getPrice(itemcode_t code);
+uint8_t getCoinsForItem(itemcode_t code);
 void setMessage(char *m);
 
 void init() {
@@ -97,10 +97,10 @@ void init() {
     itemCodes[1] = constructItemCode(A, _2);
     itemCodes[2] = constructItemCode(B, _1);
     itemCodes[3] = constructItemCode(B, _2);
-    itemPrices[0] = 0b00000100; // 000001 00 = $1.00
-    itemPrices[1] = 0b00000101; // 000001 01 = $1.25
-    itemPrices[2] = 0b00000101; // 000010 11 = $2.75
-    itemPrices[3] = 0b00000110; // 000001 10 = $1.50
+    itemPrices[0] = 4; // $1.00
+    itemPrices[1] = 5; // $1.25
+    itemPrices[2] = 11; // $2.75
+    itemPrices[3] = 6; // $1.50
 
     // Initialize the timer for the "display message" mode
     // Set it to use ACLK
@@ -173,6 +173,7 @@ void updateLcd(void) {
     int i;
     switch (currentMode) {
         case EnteringCode:
+        {
             lcd_SetLineNumber(FirstLine);
             lcd_puts("Enter Code: ");
             char letter = '_', digit = '_';
@@ -185,13 +186,17 @@ void updateLcd(void) {
             lcd_putch(letter);
             lcd_putch(digit);
             lcd_puts("  "); // Double space to fully clear the line
-            // Clear the second line
+            // Print out current credits on second line
             lcd_SetLineNumber(SecondLine);
-            for (i = 0; i < 16; i++) {
-                lcd_putch(' ');
-            }
+            lcd_puts("Credits: ");
+            char buffer[16];
+            moneyToString(coinsToMoney(coinsInserted), buffer);
+            lcd_puts(buffer);
+            lcd_puts("  ");
             break;
+        }
         case EnteringCoins:
+        {
             lcd_SetLineNumber(FirstLine);
             lcd_puts("Item: "); // Item: __00000000 (8 spaces)
             lcd_putch(getCharForLetter(itemCode.letter));
@@ -199,14 +204,24 @@ void updateLcd(void) {
             lcd_puts("        ");
 
             lcd_SetLineNumber(SecondLine);
-            lcd_puts("Insert: "); // Insert: $_.__000
+            lcd_puts("Insert: "); // Insert: $_.__000 (3 spaces)
             char buffer[6];
-            price_t price = getPrice(itemCode);
-            priceToString(price, buffer);
+            uint8_t coins = getCoinsForItem(itemCode);
+            coins -= coinsInserted;
+            money_t price = coinsToMoney(coins);
+            moneyToString(price, buffer);
             lcd_puts(buffer);
             lcd_puts("   "); // Fill out the line
             break;
+        }
+        case DispensingItem:
+            lcd_SetLineNumber(FirstLine);
+            lcd_puts("Dispensing...   ");
+            lcd_SetLineNumber(SecondLine);
+            lcd_puts("                ");
+            break;
         case DisplayMessage:
+        {
             lcd_SetLineNumber(FirstLine);
             lcd_puts(message);
             // Clear the second line
@@ -215,6 +230,7 @@ void updateLcd(void) {
                 lcd_putch(' ');
             }
             break;
+        }
     }
     // TODO
 
@@ -238,9 +254,9 @@ void submitButtonHandler(void) {
     switch (currentMode) {
         case EnteringCode: {
             // Check if the code is a valid item
-            price_t price = getPrice(itemCode);
+            uint8_t price = getCoinsForItem(itemCode);
             // If invalid item, need to tell user and not accept
-            if (price == INVALID_PRICE) {
+            if (price == 0) {
                 setMessage(" *Invalid Code* ");
                 enterMessageMode();
             } else {
@@ -276,9 +292,21 @@ void clearButtonHandler(void) {
     }
 }
 void coinButtonHandler(void) {
+    coinsInserted++;
+    if (currentMode == EnteringCode) {
+        updateLcd();
+    } else if (currentMode == EnteringCoins) {
+        updateLcd();
+        uint8_t coinsRequired = getCoinsForItem(itemCode);
+        if (coinsInserted >= coinsRequired) {
+            coinsInserted -= coinsRequired;
+            currentMode = DispensingItem;
+            updateLcd();
+        }
+    }
 }
 
-price_t getPrice(itemcode_t code) {
+uint8_t getCoinsForItem(itemcode_t code) {
     int i;
     for (i = 0; i < NUM_ITEMS; i++) {
         itemcode_t code = itemCodes[i];
@@ -286,7 +314,7 @@ price_t getPrice(itemcode_t code) {
             return itemPrices[i];
         }
     }
-    return INVALID_PRICE;
+    return 0;
 }
 
 void setMessage(char *m) {

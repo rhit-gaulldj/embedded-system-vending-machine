@@ -232,13 +232,6 @@ void updateLcd(void) {
             break;
         }
     }
-    // TODO
-
-    // State 3:
-    // Item: __
-    // Insert: $_.__
-
-    // (able to cancel at any time until item dispensed)
 }
 
 void enterMessageMode(void) {

@@ -16,8 +16,7 @@ uint8_t itemPrices[NUM_ITEMS];
 #define NUM_STEPPERS        NUM_ITEMS
 #define STEPPER_REVOLUTIONS 1
 
-#define INVALID_INDEX   100
-#define MCLK_FREQUENCY      48000000
+#define INVALID_INDEX       100
 
 #define MSG_CLK          32000
 #define MSG_TIMER        TIMER_A2

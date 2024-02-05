@@ -14,6 +14,9 @@ itemcode_t itemCodes[NUM_ITEMS];
 uint8_t itemPrices[NUM_ITEMS];
 
 #define NUM_STEPPERS        NUM_ITEMS
+#define STEPPER_REVOLUTIONS 1
+
+#define INVALID_INDEX   100
 #define MCLK_FREQUENCY      48000000
 
 #define MSG_CLK          32000
@@ -40,6 +43,7 @@ void coinButtonHandler(void);
 void handleKey(keyType_t key);
 void updateLcd();
 uint8_t getCoinsForItem(itemcode_t code);
+uint8_t getIndexForItem(itemcode_t code);
 void setMessage(char *m);
 
 void init() {
@@ -237,7 +241,10 @@ void updateLcd(void) {
 void dispense(void) {
     currentMode = DispensingItem;
     updateLcd();
-    // TODO: Rotate the correct stepper motor
+    uint8_t index = getIndexForItem(itemCode);
+    if (index != INVALID_INDEX) {
+        rotate(&steppers[index], STEPPER_REVOLUTIONS);
+    }
 }
 
 void enterMessageMode(void) {
@@ -312,8 +319,6 @@ void coinButtonHandler(void) {
     }
 }
 
-#define INVALID_INDEX   100
-
 uint8_t getIndexForItem(itemcode_t code) {
     int i;
     for (i = 0; i < NUM_ITEMS; i++) {
@@ -332,14 +337,6 @@ uint8_t getCoinsForItem(itemcode_t code) {
     } else {
         return itemPrices[getIndexForItem(code)];
     }
-//    int i;
-//    for (i = 0; i < NUM_ITEMS; i++) {
-//        itemcode_t code = itemCodes[i];
-//        if (code.letter == itemCode.letter && code.digit == itemCode.digit) {
-//            return itemPrices[i];
-//        }
-//    }
-//    return 0;
 }
 
 void setMessage(char *m) {

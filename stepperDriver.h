@@ -38,6 +38,8 @@ void initStepperMotorTimer(void);
 
 void rotate(stepperMotor_t *motor, uint8_t revolutions);
 
+void registerRotationFinishHandler(void (*event)(void));
+
 #ifdef __cplusplus
 }
 #endif

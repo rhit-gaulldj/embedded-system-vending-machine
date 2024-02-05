@@ -13,6 +13,7 @@ const uint8_t stepperSequence[STEP_SEQ_CNT] = {0b0001, 0b0011, 0b0010, 0b0110,
 uint8_t currentStep = 0;
 stepperMotor_t *currentlyRotating = NULL;
 uint16_t stepsRemaining = 0;
+void (*onRotationFinish)(void);
 
 void initStepperMotor(stepperMotor_t motor) {
     initOutputPin(motor.in1, Low);
@@ -76,6 +77,13 @@ void step() {
     uint8_t sequence = stepperSequence[currentStep];
     setStepperOutput(currentlyRotating, sequence);
     stepsRemaining--;
+    if (stepsRemaining <= 0) {
+        onRotationFinish();
+    }
+}
+
+void registerRotationFinishHandler(void (*event)(void)) {
+    onRotationFinish = event;
 }
 
 void TA1_0_IRQHandler(void) {

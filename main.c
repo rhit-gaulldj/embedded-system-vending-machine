@@ -45,6 +45,7 @@ void updateLcd();
 uint8_t getCoinsForItem(itemcode_t code);
 uint8_t getIndexForItem(itemcode_t code);
 void setMessage(char *m);
+void rotationFinishHandler(void);
 
 void init() {
     initConstants();
@@ -67,6 +68,7 @@ void init() {
     initStepperMotor(steppers[3]);
 
     initStepperMotorTimer();
+    registerRotationFinishHandler(rotationFinishHandler);
 
     // Initialize the various outside push buttons
     submitButton = constructButton(P1P4, 1);
@@ -245,6 +247,13 @@ void dispense(void) {
     if (index != INVALID_INDEX) {
         rotate(&steppers[index], STEPPER_REVOLUTIONS);
     }
+}
+
+void rotationFinishHandler(void) {
+    currentMode = EnteringCode;
+    itemCode.letter = NoLetter;
+    itemCode.digit = NoDigit;
+    updateLcd();
 }
 
 void enterMessageMode(void) {

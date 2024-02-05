@@ -23,7 +23,7 @@ uint8_t itemPrices[NUM_ITEMS];
 #define MSG_TIMER        TIMER_A2
 #define MSG_SECONDS      3 // Show message for this many seconds
 #define MSG_PRESCALER    8
-#define MSG_PERIOD       MSG_CLK/MSG_PRESCALER*MSG_SECONDS
+#define MSG_PERIOD       MSG_CLK*MSG_SECONDS/MSG_PRESCALER
 
 stepperMotor_t steppers[NUM_STEPPERS];
 button_t submitButton;

@@ -55,8 +55,4 @@ keys_t getPressedKeys(void);
 char getCharForKey(keyType_t key);
 keyCategory_t getKeyCategory(keyType_t key);
 
-// Returns the status of various buttons
-//buttonState_t getSubmitButtonStatus(void);
-//buttonState_t getClearButtonStatus(void);
-
 #endif /* KEYPAD_H_ */

@@ -102,12 +102,12 @@ typedef enum _resistorType {
 } resistorType_t;
 
 void initOutputPin(pin_t pin, pinValue_t initValue);
-// TODO: Allow pullup/down resistors
 void initInputPin(pin_t pin, resistorType_t resType);
 
 void setOutput(pin_t pin);
 void clearOutput(pin_t pin);
 void toggleOutput(pin_t pin);
 uint8_t readPin(pin_t pin);
+char valToChar(uint8_t pinValue);
 
 #endif /* IOHELPER_H_ */

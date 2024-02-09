@@ -53,14 +53,14 @@ void init() {
     configLFXT();
 
     // Initialize the keypad
-    initKeypad(P6P6, P6P5, P6P4, P1P7,
-               P1P6, P1P5, P3P7, P3P6);
+    initKeypad(P4P0, P4P1, P4P2, P4P3,
+               P4P4, P4P5, P4P6, P4P7);
 
     // Initialize the stepper motor stuff
-    steppers[0] = constructStepperMotor(0, P2P3, P2P4, P2P5, P2P6);
+    steppers[0] = constructStepperMotor(0, P3P0, P3P2, P3P3, P3P5);
     steppers[1] = constructStepperMotor(1, P3P0, P3P2, P3P3, P3P5);
-    steppers[2] = constructStepperMotor(2, P5P0, P5P1, P5P2, P5P4);
-    steppers[3] = constructStepperMotor(3, P5P5, P5P6, P5P7, P6P7);
+    steppers[2] = constructStepperMotor(2, P3P0, P3P2, P3P3, P3P5);
+    steppers[3] = constructStepperMotor(3, P3P0, P3P2, P3P3, P3P5);
     initStepperMotor(steppers[0]);
     initStepperMotor(steppers[1]);
     initStepperMotor(steppers[2]);
@@ -71,7 +71,7 @@ void init() {
 
     // Initialize the various outside push buttons
     submitButton = constructButton(P1P4, 1);
-    clearButton = constructButton(P4P5, 1);
+    clearButton = constructButton(P5P5, 1);
     coinButton = constructButton(P1P1, 1);
     if (submitButton.exists) {
         initButton(submitButton);
@@ -87,7 +87,7 @@ void init() {
     }
 
     // Configure and initialize the LCD
-    configLCD(P4P3, P4P2, P6P0, P6P1, P4P0, P4P1);
+    configLCD(P6P0, P2P7, P2P3, P2P4, P2P5, P2P6);
     lcd_init();
     lcd_clear();
     updateLcd();

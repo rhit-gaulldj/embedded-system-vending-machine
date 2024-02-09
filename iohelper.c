@@ -240,3 +240,10 @@ uint8_t readPin(pin_t pin) {
     }
     return 0;
 }
+
+char valToChar(uint8_t pinValue) {
+    if (pinValue) {
+        return '1';
+    }
+    return '0';
+}

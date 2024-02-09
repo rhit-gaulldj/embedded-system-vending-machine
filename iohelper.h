@@ -17,6 +17,7 @@ typedef struct _port {
     volatile uint8_t *SEL0;
     volatile uint8_t *SEL1;
     volatile uint8_t *DIR;
+    uint8_t portNum;
 
 } port_t;
 
@@ -101,6 +102,11 @@ typedef enum _resistorType {
     Pulldown
 } resistorType_t;
 
+typedef struct _intPin {
+    pin_t pin;
+    void (*handler)(void);
+} pinInterruptEntry_t;
+
 void initOutputPin(pin_t pin, pinValue_t initValue);
 void initInputPin(pin_t pin, resistorType_t resType);
 
@@ -109,5 +115,7 @@ void clearOutput(pin_t pin);
 void toggleOutput(pin_t pin);
 uint8_t readPin(pin_t pin);
 char valToChar(uint8_t pinValue);
+
+void registerPinInterruptHandler(pin_t pin, void (*handler)(void));
 
 #endif /* IOHELPER_H_ */

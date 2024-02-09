@@ -56,7 +56,14 @@ pin_t P6P5;
 pin_t P6P6;
 pin_t P6P7;
 
-port_t initEvenPort(DIO_PORT_Even_Interruptable_Type *p) {
+// Can only have this many pin interrupt handlers registered
+// This number should be plenty for our program
+#define MAX_PIN_INTERRUPTS 16
+pinInterruptEntry_t interruptPins[MAX_PIN_INTERRUPTS];
+uint8_t interruptPinsTail; // Index of the first empty entry in the interruptPins array
+uint8_t interruptNvicBits[6];
+
+port_t initEvenPort(DIO_PORT_Even_Interruptable_Type *p, uint8_t num) {
     port_t port;
     port.DIR = &(p->DIR);
     port.IN = &(p->IN);
@@ -64,9 +71,10 @@ port_t initEvenPort(DIO_PORT_Even_Interruptable_Type *p) {
     port.REN = &(p->REN);
     port.SEL0 = &(p->SEL0);
     port.SEL1 = &(p->SEL1);
+    port.portNum = num;
     return port;
 }
-port_t initOddPort(DIO_PORT_Odd_Interruptable_Type *p) {
+port_t initOddPort(DIO_PORT_Odd_Interruptable_Type *p, uint8_t num) {
     port_t port;
     port.DIR = &(p->DIR);
     port.IN = &(p->IN);
@@ -74,16 +82,24 @@ port_t initOddPort(DIO_PORT_Odd_Interruptable_Type *p) {
     port.REN = &(p->REN);
     port.SEL0 = &(p->SEL0);
     port.SEL1 = &(p->SEL1);
+    port.portNum = num;
     return port;
 }
 
 void initConstants(void) {
-    Port1 = initOddPort(P1);
-    Port2 = initEvenPort(P2);
-    Port3 = initOddPort(P3);
-    Port4 = initEvenPort(P4);
-    Port5 = initOddPort(P5);
-    Port6 = initEvenPort(P6);
+    interruptNvicBits[0] = PORT1_IRQn;
+    interruptNvicBits[1] = PORT2_IRQn;
+    interruptNvicBits[2] = PORT3_IRQn;
+    interruptNvicBits[3] = PORT4_IRQn;
+    interruptNvicBits[4] = PORT5_IRQn;
+    interruptNvicBits[5] = PORT6_IRQn;
+
+    Port1 = initOddPort(P1, 1);
+    Port2 = initEvenPort(P2, 2);
+    Port3 = initOddPort(P3, 3);
+    Port4 = initEvenPort(P4, 4);
+    Port5 = initOddPort(P5, 5);
+    Port6 = initEvenPort(P6, 6);
 
     P1P1.port = Port1;
     P1P1.pin = 1;
@@ -174,6 +190,8 @@ void initConstants(void) {
     P6P6.pin = 6;
     P6P7.port = Port6;
     P6P7.pin = 7;
+
+    interruptPinsTail = 0;
 }
 
 void initOutputPin(pin_t pin, pinValue_t initValue) {
@@ -246,4 +264,42 @@ char valToChar(uint8_t pinValue) {
         return '1';
     }
     return '0';
+}
+
+void registerPinInterruptHandler(pin_t pin, void (*handler)(void)) {
+    pinInterruptEntry_t newEntry;
+    newEntry.pin = pin;
+    newEntry.handler = handler;
+    if (interruptPinsTail >= MAX_PIN_INTERRUPTS) {
+        // Cannot add more than max number, so just return early and do nothing
+        return;
+    }
+    interruptPins[interruptPinsTail] = newEntry;
+    interruptPinsTail++;
+    // Turn on interrupt for this pin in NVIC
+    uint8_t nvicBit = interruptNvicBits[pin.port.portNum-1];
+    NVIC->ISER[1] |= (1)<<(nvicBit-32);
+}
+
+void intHandler(uint8_t port) {
+    // TODO
+}
+
+void PORT1_IRQHandler(void) {
+    intHandler(1);
+}
+void PORT2_IRQHandler(void) {
+    intHandler(2);
+}
+void PORT3_IRQHandler(void) {
+    intHandler(3);
+}
+void PORT4_IRQHandler(void) {
+    intHandler(4);
+}
+void PORT5_IRQHandler(void) {
+    intHandler(5);
+}
+void PORT6_IRQHandler(void) {
+    intHandler(6);
 }

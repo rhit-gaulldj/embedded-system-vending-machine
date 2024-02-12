@@ -52,6 +52,8 @@ void init() {
     configHFXT();
     configLFXT();
 
+    initButtonModule();
+
     // Initialize the keypad
     initKeypad(P4P0, P4P1, P4P2, P4P3,
                P4P4, P4P5, P4P6, P4P7);

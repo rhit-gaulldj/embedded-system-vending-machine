@@ -24,10 +24,11 @@ typedef struct _button {
 
 } button_t;
 
+void initButtonModule(void);
+
 // Sets up the IO for the provided button
 button_t constructButton(pin_t pin, uint8_t exists);
 void initButton(button_t btn);
-buttonState_t getButtonState(button_t btn);
 //void debounce(void); // Debounce only used internally
 void registerButtonPressEvent(button_t *btn, void (*event)(void));
 void updateButton(button_t *btn);

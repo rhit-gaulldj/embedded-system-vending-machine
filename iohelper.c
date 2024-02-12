@@ -71,6 +71,8 @@ port_t initEvenPort(DIO_PORT_Even_Interruptable_Type *p, uint8_t num) {
     port.REN = &(p->REN);
     port.SEL0 = &(p->SEL0);
     port.SEL1 = &(p->SEL1);
+    port.IE = &(p->IE);
+    port.IES = &(p->IES);
     port.portNum = num;
     return port;
 }
@@ -82,6 +84,8 @@ port_t initOddPort(DIO_PORT_Odd_Interruptable_Type *p, uint8_t num) {
     port.REN = &(p->REN);
     port.SEL0 = &(p->SEL0);
     port.SEL1 = &(p->SEL1);
+    port.IE = &(p->IE);
+    port.IES = &(p->IES);
     port.portNum = num;
     return port;
 }
@@ -232,6 +236,22 @@ void initInputPin(pin_t pin, resistorType_t resType) {
         *(port.OUT) &= ~mask; // Set output to low to save on power
     }
 }
+void setupInterrupts(pin_t pin, interruptEdge_t edge) {
+    port_t port = pin.port;
+    uint8_t mask = 1 << pin.pin;
+
+    // Disable interrupts while we modify the pin
+    *(port.IE) &= ~mask;
+    // Low to high => IES = 0
+    // High to low => IES = 1
+    if (edge == LowToHigh) {
+        *(port.IES) &= ~mask;
+    } else {
+        *(port.IES) |= mask;
+    }
+    // Enable interrupts
+    *(port.IE) |= mask;
+}
 
 void setOutput(pin_t pin) {
     port_t port = pin.port;
@@ -266,9 +286,10 @@ char valToChar(uint8_t pinValue) {
     return '0';
 }
 
-void registerPinInterruptHandler(uint8_t port, void (*handler)(void)) {
+void registerPortInterruptHandler(pin_t *pin, interruptEdge_t edge, void (*handler)(uint8_t, uint8_t)) {
+    setupInterrupts(*pin, edge);
     pinInterruptEntry_t newEntry;
-    newEntry.port = port;
+    newEntry.pin = pin;
     newEntry.handler = handler;
     if (interruptPinsTail >= MAX_PIN_INTERRUPTS) {
         // Cannot add more than max number, so just return early and do nothing
@@ -277,37 +298,70 @@ void registerPinInterruptHandler(uint8_t port, void (*handler)(void)) {
     interruptPins[interruptPinsTail] = newEntry;
     interruptPinsTail++;
     // Turn on interrupt for this pin in NVIC
-    uint8_t nvicBit = interruptNvicBits[port - 1];
+    uint8_t nvicBit = interruptNvicBits[pin->port.portNum - 1];
     NVIC->ISER[1] |= (1)<<(nvicBit-32);
 }
 
-void intHandler(uint8_t port) {
+void intHandler(uint8_t port, uint8_t pin) {
     // Iterate over all the interrupt handlers, until we find one for this port
     int i = 0;
     while (i < interruptPinsTail && i < MAX_PIN_INTERRUPTS) {
         pinInterruptEntry_t entry = interruptPins[i];
-        if (entry.port == port) {
-            entry.handler();
+        if ((entry.pin->port.portNum == port) && (entry.pin->pin == pin)) {
+            entry.handler(port, pin);
         }
         i++;
     }
 }
 
+// Priority goes from low to high values
+uint8_t getInterruptPin(uint8_t flags) {
+    uint8_t p = 0;
+    while (p < 8) {
+        if (flags & 0x01) {
+            return p;
+        }
+        flags >>= 1;
+        p++;
+    }
+    return p; // Should never get here if flags > 0
+}
+
 void PORT1_IRQHandler(void) {
-    intHandler(1);
+    uint8_t pin = getInterruptPin(P1->IFG);
+    char status = P1->IFG;
+    intHandler(1, pin);
+    // Clear interrupt flag
+    P1->IFG &= ~(1 << pin);
+    status = P1->IFG;
 }
 void PORT2_IRQHandler(void) {
-    intHandler(2);
+    uint8_t pin = getInterruptPin(P2->IFG);
+    intHandler(2, pin);
+    // Clear interrupt flag
+    P2->IFG &= ~(1 << pin);
 }
 void PORT3_IRQHandler(void) {
-    intHandler(3);
+    uint8_t pin = getInterruptPin(P3->IFG);
+    intHandler(3, pin);
+    // Clear interrupt flag
+    P3->IFG &= ~(1 << pin);
 }
 void PORT4_IRQHandler(void) {
-    intHandler(4);
+    uint8_t pin = getInterruptPin(P4->IFG);
+    intHandler(4, pin);
+    // Clear interrupt flag
+    P4->IFG &= ~(1 << pin);
 }
 void PORT5_IRQHandler(void) {
-    intHandler(5);
+    uint8_t pin = getInterruptPin(P5->IFG);
+    intHandler(5, pin);
+    // Clear interrupt flag
+    P5->IFG &= ~(1 << pin);
 }
 void PORT6_IRQHandler(void) {
-    intHandler(6);
+    uint8_t pin = getInterruptPin(P6->IFG);
+    intHandler(6, pin);
+    // Clear interrupt flag
+    P6->IFG &= ~(1 << pin);
 }

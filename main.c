@@ -117,10 +117,11 @@ void init() {
     itemCodes[1] = constructItemCode(A, _2);
     itemCodes[2] = constructItemCode(B, _1);
     itemCodes[3] = constructItemCode(B, _2);
-    itemPrices[0] = 0b00000100; // $1.00
-    itemPrices[1] = 0b00000101; // $1.25
-    itemPrices[2] = 0b00001011; // $2.75
-    itemPrices[3] = 0b00000110; // $1.50
+    // Prices are in coins
+    itemPrices[0] = 4; // $1.00
+    itemPrices[1] = 5; // $1.25
+    itemPrices[2] = 11; // $2.75
+    itemPrices[3] = 6; // $1.50
 
     // Initialize the timer for the "display message" mode
     // Set it to use ACLK

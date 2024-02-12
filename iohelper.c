@@ -277,7 +277,7 @@ void registerPinInterruptHandler(uint8_t port, void (*handler)(void)) {
     interruptPins[interruptPinsTail] = newEntry;
     interruptPinsTail++;
     // Turn on interrupt for this pin in NVIC
-    uint8_t nvicBit = interruptNvicBits[pin.port.portNum - 1];
+    uint8_t nvicBit = interruptNvicBits[port - 1];
     NVIC->ISER[1] |= (1)<<(nvicBit-32);
 }
 

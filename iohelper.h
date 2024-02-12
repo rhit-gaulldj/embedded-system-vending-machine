@@ -103,7 +103,7 @@ typedef enum _resistorType {
 } resistorType_t;
 
 typedef struct _intPin {
-    pin_t pin;
+    uint8_t port;
     void (*handler)(void);
 } pinInterruptEntry_t;
 
@@ -116,6 +116,6 @@ void toggleOutput(pin_t pin);
 uint8_t readPin(pin_t pin);
 char valToChar(uint8_t pinValue);
 
-void registerPinInterruptHandler(pin_t pin, void (*handler)(void));
+void registerPinInterruptHandler(uint8_t port, void (*handler)(void));
 
 #endif /* IOHELPER_H_ */

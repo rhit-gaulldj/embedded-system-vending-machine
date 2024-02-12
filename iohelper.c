@@ -266,9 +266,9 @@ char valToChar(uint8_t pinValue) {
     return '0';
 }
 
-void registerPinInterruptHandler(pin_t pin, void (*handler)(void)) {
+void registerPinInterruptHandler(uint8_t port, void (*handler)(void)) {
     pinInterruptEntry_t newEntry;
-    newEntry.pin = pin;
+    newEntry.port = port;
     newEntry.handler = handler;
     if (interruptPinsTail >= MAX_PIN_INTERRUPTS) {
         // Cannot add more than max number, so just return early and do nothing
@@ -277,12 +277,20 @@ void registerPinInterruptHandler(pin_t pin, void (*handler)(void)) {
     interruptPins[interruptPinsTail] = newEntry;
     interruptPinsTail++;
     // Turn on interrupt for this pin in NVIC
-    uint8_t nvicBit = interruptNvicBits[pin.port.portNum-1];
+    uint8_t nvicBit = interruptNvicBits[pin.port.portNum - 1];
     NVIC->ISER[1] |= (1)<<(nvicBit-32);
 }
 
 void intHandler(uint8_t port) {
-    // TODO
+    // Iterate over all the interrupt handlers, until we find one for this port
+    int i = 0;
+    while (i < interruptPinsTail && i < MAX_PIN_INTERRUPTS) {
+        pinInterruptEntry_t entry = interruptPins[i];
+        if (entry.port == port) {
+            entry.handler();
+        }
+        i++;
+    }
 }
 
 void PORT1_IRQHandler(void) {

@@ -72,9 +72,16 @@ void init() {
     registerRotationFinishHandler(rotationFinishHandler);
 
     // Initialize the various outside push buttons
+    // The way the buttons work is:
+    // We can only handle pin interrupt on high-to-low or low-to-high edges, not both
+    // For buttons, we take action upon the release
+    // However, pressing them down is more important to capture; it's the start of the button press
+    // Therefore, we have interrupt handlers for pressing buttons DOWN,
+    // and poll for button releases. As long as we see the press, we can safely poll for the release
+    // We could just use interrupts for the low-to-high edge to detect a release, but have decided to take this route instead
     submitButton = constructButton(P1P4, 1);
-    clearButton = constructButton(P5P5, 1);
-    coinButton = constructButton(P1P1, 1);
+    clearButton = constructButton(P1P1, 1);
+    coinButton = constructButton(P5P5, 1);
     if (submitButton.exists) {
         initButton(submitButton);
         registerButtonPressEvent(&submitButton, submitButtonHandler);

@@ -79,6 +79,11 @@ void step() {
     stepsRemaining--;
     if (stepsRemaining <= 0) {
         onRotationFinish();
+        // Clear the outputs for the current motor to save power
+        clearOutput(currentlyRotating->in1);
+        clearOutput(currentlyRotating->in2);
+        clearOutput(currentlyRotating->in3);
+        clearOutput(currentlyRotating->in4);
     }
 }
 

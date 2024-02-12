@@ -2,6 +2,8 @@
 #include "iohelper.h"
 #include <stddef.h>
 
+#define KEY_PRESSED_VALUE   0
+
 struct keypad_pins {
     pin_t row1;
     pin_t row2;
@@ -47,8 +49,6 @@ void initKeypad(pin_t pin1, pin_t pin2, pin_t pin3, pin_t pin4,
 keys_t getPressedKeys() {
     keys_t result = 0;
 
-    uint8_t pinPressedValue = 0;
-
     // Pull the columns low one by one, and read the rows
     // Check the first column
     // Pins default to being low so we need to pull them high right now
@@ -56,62 +56,62 @@ keys_t getPressedKeys() {
     setOutput(pins.col3);
     setOutput(pins.col4);
     clearOutput(pins.col1);
-    if (readPin(pins.row1) == pinPressedValue) {
+    if (readPin(pins.row1) == KEY_PRESSED_VALUE) {
         result |= KEY1_MASK;
     }
-    if (readPin(pins.row2) == pinPressedValue) {
+    if (readPin(pins.row2) == KEY_PRESSED_VALUE) {
         result |= KEY4_MASK;
     }
-    if (readPin(pins.row3) == pinPressedValue) {
+    if (readPin(pins.row3) == KEY_PRESSED_VALUE) {
         result |= KEY7_MASK;
     }
-    if (readPin(pins.row4) == pinPressedValue) {
+    if (readPin(pins.row4) == KEY_PRESSED_VALUE) {
         result |= KEYSTAR_MASK;
     }
     // Check the second column
     setOutput(pins.col1);
     clearOutput(pins.col2);
-    if (readPin(pins.row1) == pinPressedValue) {
+    if (readPin(pins.row1) == KEY_PRESSED_VALUE) {
         result |= KEY2_MASK;
     }
-    if (readPin(pins.row2) == pinPressedValue) {
+    if (readPin(pins.row2) == KEY_PRESSED_VALUE) {
         result |= KEY5_MASK;
     }
-    if (readPin(pins.row3) == pinPressedValue) {
+    if (readPin(pins.row3) == KEY_PRESSED_VALUE) {
         result |= KEY8_MASK;
     }
-    if (readPin(pins.row4) == pinPressedValue) {
+    if (readPin(pins.row4) == KEY_PRESSED_VALUE) {
         result |= KEY0_MASK;
     }
     // Check the third column
     setOutput(pins.col2);
     clearOutput(pins.col3);
     char test = P4->IN;
-    if (readPin(pins.row1) == pinPressedValue) {
+    if (readPin(pins.row1) == KEY_PRESSED_VALUE) {
         result |= KEY3_MASK;
     }
-    if (readPin(pins.row2) == pinPressedValue) {
+    if (readPin(pins.row2) == KEY_PRESSED_VALUE) {
         result |= KEY6_MASK;
     }
-    if (readPin(pins.row3) == pinPressedValue) {
+    if (readPin(pins.row3) == KEY_PRESSED_VALUE) {
         result |= KEY9_MASK;
     }
-    if (readPin(pins.row4) == pinPressedValue) {
+    if (readPin(pins.row4) == KEY_PRESSED_VALUE) {
         result |= KEYPOUND_MASK;
     }
     // Finally, check the fourth column
     setOutput(pins.col3);
     clearOutput(pins.col4);
-    if (readPin(pins.row1) == pinPressedValue) {
+    if (readPin(pins.row1) == KEY_PRESSED_VALUE) {
         result |= KEYA_MASK;
     }
-    if (readPin(pins.row2) == pinPressedValue) {
+    if (readPin(pins.row2) == KEY_PRESSED_VALUE) {
         result |= KEYB_MASK;
     }
-    if (readPin(pins.row3) == pinPressedValue) {
+    if (readPin(pins.row3) == KEY_PRESSED_VALUE) {
         result |= KEYC_MASK;
     }
-    if (readPin(pins.row4) == pinPressedValue) {
+    if (readPin(pins.row4) == KEY_PRESSED_VALUE) {
         result |= KEYD_MASK;
     }
     // Clear output of other pins to save power

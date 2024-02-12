@@ -24,6 +24,12 @@ uint8_t itemPrices[NUM_ITEMS];
 #define MSG_PRESCALER    8
 #define MSG_PERIOD       MSG_CLK*MSG_SECONDS/MSG_PRESCALER
 
+// We use 6 bits to represent the dollar amount stored
+// So, the max is 2^6, times 4 coins per dollar, then minus one to keep us below 2^6 for money
+// This also works well because coinsInserted is 8 bits and also has a max of 255
+#define MAX_COINS        (1 << 6) * 4 - 1
+#define VALUE_OF_COIN    1
+
 stepperMotor_t steppers[NUM_STEPPERS];
 button_t submitButton;
 button_t clearButton;
@@ -206,7 +212,7 @@ void updateLcd(void) {
             char buffer[16];
             moneyToString(coinsToMoney(coinsInserted), buffer);
             lcd_puts(buffer);
-            lcd_puts("  ");
+            lcd_puts(" ");
             break;
         }
         case EnteringCoins:
@@ -219,7 +225,7 @@ void updateLcd(void) {
 
             lcd_SetLineNumber(SecondLine);
             lcd_puts("Insert: "); // Insert: $_.__000 (3 spaces)
-            char buffer[6];
+            char buffer[16];
             uint8_t coins = getCoinsForItem(itemCode);
             coins -= coinsInserted;
             money_t price = coinsToMoney(coins);
@@ -323,7 +329,11 @@ void clearButtonHandler(void) {
     }
 }
 void coinButtonHandler(void) {
-    coinsInserted++;
+    if (coinsInserted + VALUE_OF_COIN >= MAX_COINS) {
+        coinsInserted = MAX_COINS;
+    } else {
+        coinsInserted += VALUE_OF_COIN;
+    }
     if (currentMode == EnteringCode) {
         updateLcd();
     } else if (currentMode == EnteringCoins) {

@@ -86,31 +86,58 @@ itemcode_t constructItemCode(letter_t letter, digit_t digit) {
     return code;
 }
 
+char intDigitToChar(uint8_t digit) {
+    switch (digit) {
+        case 0: return '0';
+        case 1: return '1';
+        case 2: return '2';
+        case 3: return '3';
+        case 4: return '4';
+        case 5: return '5';
+        case 6: return '6';
+        case 7: return '7';
+        case 8: return '8';
+        case 9: return '9';
+    }
+    return ' ';
+}
+
 void moneyToString(money_t price, char *buffer) {
+    // Buffer must have length of at least 7
     buffer[0] = '$';
     // Calculate the first digit
     uint8_t wholeNumber = (price & 0b11111100) >> 2;
-    switch (wholeNumber) {
-        case 0: buffer[1] = '0'; break;
-        case 1: buffer[1] = '1'; break;
-        case 2: buffer[1] = '2'; break;
-        case 3: buffer[1] = '3'; break;
-        case 4: buffer[1] = '4'; break;
-        case 5: buffer[1] = '5'; break;
-        case 6: buffer[1] = '6'; break;
-        case 7: buffer[1] = '7'; break;
-        case 8: buffer[1] = '8'; break;
-        case 9: buffer[1] = '9'; break;
+    if (wholeNumber >= 10) {
+        // Need to use two digits
+        uint8_t upper = wholeNumber / 10;
+        if (upper >= 10) {
+            // This is a 3-digit number, so we just set everything to $99.99
+            buffer[1] = '9';
+            buffer[2] = '9';
+            buffer[3] = '.';
+            buffer[4] = '9';
+            buffer[5] = '9';
+            buffer[6] = '\0';
+            return;
+        }
+        uint8_t lower = wholeNumber % 10;
+        // Set each digit
+        buffer[1] = intDigitToChar(upper);
+        buffer[2] = intDigitToChar(lower);
+    } else {
+        buffer[1] = ' ';
+        buffer[2] = intDigitToChar(wholeNumber);
     }
-    buffer[2] = '.';
+
+    buffer[3] = '.';
     uint8_t decimal = price & 0b00000011;
     switch (decimal) {
-        case 0: buffer[3] = '0'; buffer[4] = '0'; break;
-        case 1: buffer[3] = '2'; buffer[4] = '5'; break;
-        case 2: buffer[3] = '5'; buffer[4] = '0'; break;
-        case 3: buffer[3] = '7'; buffer[4] = '5'; break;
+        case 0: buffer[4] = '0'; buffer[5] = '0'; break;
+        case 1: buffer[4] = '2'; buffer[5] = '5'; break;
+        case 2: buffer[4] = '5'; buffer[5] = '0'; break;
+        case 3: buffer[4] = '7'; buffer[5] = '5'; break;
     }
-    buffer[5] = '\0';
+    buffer[6] = '\0';
 }
 
 money_t coinsToMoney(uint8_t coins) {

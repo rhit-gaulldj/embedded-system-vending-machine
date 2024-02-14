@@ -65,10 +65,10 @@ void init() {
                P4P4, P4P5, P4P6, P4P7);
 
     // Initialize the stepper motor stuff
-    steppers[0] = constructStepperMotor(0, P3P0, P3P2, P3P3, P3P5);
+    steppers[0] = constructStepperMotor(0, P1P6, P1P5, P3P7, P3P6);
     steppers[1] = constructStepperMotor(1, P3P0, P3P2, P3P3, P3P5);
-    steppers[2] = constructStepperMotor(2, P3P0, P3P2, P3P3, P3P5);
-    steppers[3] = constructStepperMotor(3, P3P0, P3P2, P3P3, P3P5);
+    steppers[2] = constructStepperMotor(2, P5P0, P5P1, P5P2, P5P4);
+    steppers[3] = constructStepperMotor(3, P5P5, P5P6, P5P7, P6P7);
     initStepperMotor(steppers[0]);
     initStepperMotor(steppers[1]);
     initStepperMotor(steppers[2]);
@@ -85,9 +85,9 @@ void init() {
     // Therefore, we have interrupt handlers for pressing buttons DOWN,
     // and poll for button releases. As long as we see the press, we can safely poll for the release
     // We could just use interrupts for the low-to-high edge to detect a release, but have decided to take this route instead
-    submitButton = constructButton(P1P4, 1);
-    clearButton = constructButton(P1P1, 1);
-    coinButton = constructButton(P5P5, 1);
+    submitButton = constructButton(P6P6, 1);
+    clearButton = constructButton(P6P5, 1);
+    coinButton = constructButton(P6P4, 1);
     if (submitButton.exists) {
         initButton(submitButton);
         registerButtonPressEvent(&submitButton, submitButtonHandler);

@@ -31,6 +31,10 @@ void initStepperMotorTimer(void) {
     // Prescaler of 6 - Total is 24
     STEPPER_TIMER->EX0 = 0x0005;
 
+    // TEST
+//    STEPPER_TIMER->CTL = 0x02D0; // Prescaler of 8
+//    STEPPER_TIMER->EX0 = 0x0007; // Prescaler of 8 - total of 64
+
     NVIC->ISER[0] |= 1 << TIMER_INTERRUPT_BIT;
 }
 

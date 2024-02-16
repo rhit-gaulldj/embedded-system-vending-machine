@@ -72,7 +72,7 @@ void lcd_init(void)
 //writes data on LCD Panel pin DB7-0 into LCD Panel.
 void LCD_STROBE(void) {
     setEnableHigh();
-    DelayMs(10); //10
+    DelayMs(10);
     setEnableLow();
     DelayMs(1);
 }

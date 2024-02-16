@@ -5,11 +5,11 @@
 #define STEPPER_TIMER           TIMER_A1
 #define TIMER_INTERRUPT_BIT     TA1_0_IRQn
 
-#define STEPPER_PERIOD          2000
-#define STEP_SEQ_CNT            8
+#define STEPPER_PERIOD          3900
+#define STEP_SEQ_CNT            4
+#define STEPS_PER_REV           64*32
 
-const uint8_t stepperSequence[STEP_SEQ_CNT] = {0b0001, 0b0011, 0b0010, 0b0110,
-                                               0b0100, 0b1100, 0b1000, 0b1001};
+const uint8_t stepperSequence[STEP_SEQ_CNT] = {0b0011, 0b0110, 0b1100, 0b1001};
 uint8_t currentStep = 0;
 stepperMotor_t *currentlyRotating = NULL;
 uint16_t stepsRemaining = 0;
@@ -31,10 +31,6 @@ void initStepperMotorTimer(void) {
     // Prescaler of 6 - Total is 24
     STEPPER_TIMER->EX0 = 0x0005;
 
-    // TEST
-//    STEPPER_TIMER->CTL = 0x02D0; // Prescaler of 8
-//    STEPPER_TIMER->EX0 = 0x0007; // Prescaler of 8 - total of 64
-
     NVIC->ISER[0] |= 1 << TIMER_INTERRUPT_BIT;
 }
 
@@ -50,7 +46,7 @@ stepperMotor_t constructStepperMotor(uint8_t index, pin_t in1, pin_t in2, pin_t 
 
 void rotate(stepperMotor_t *motor, uint8_t revolutions) {
     currentlyRotating = motor;
-    stepsRemaining = revolutions * 64 * 64;
+    stepsRemaining = revolutions * STEPS_PER_REV;
 }
 
 void setStepperOutput(stepperMotor_t *motor, uint8_t sequence) {

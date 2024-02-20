@@ -73,7 +73,10 @@ void setStepperOutput(stepperMotor_t *motor, uint8_t sequence) {
 }
 
 void step() {
-    currentStep = (currentStep + 1) % STEP_SEQ_CNT;
+    currentStep--;// = (currentStep + 1) % STEP_SEQ_CNT;
+    if (currentStep < 0) {
+        currentstep = STEP_SEQ_CNT - 1;
+    }
     uint8_t sequence = stepperSequence[currentStep];
     setStepperOutput(currentlyRotating, sequence);
     stepsRemaining--;
